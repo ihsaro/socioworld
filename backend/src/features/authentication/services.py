@@ -1,20 +1,21 @@
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql.functions import user
 
-from features.authentication.entities import ApplicationUser
-from features.authentication.models import RegisterInput
-
-from features.authentication.repositories import (
-    register as register_repository
+from features.authentication.mappers import (
+    map_application_user_to_register_output,
+    map_register_input_to_application_user
+)
+from features.authentication.models import (
+    RegisterInput,
+    RegisterOutput
 )
 
+from features.authentication import repositories as authentication_repositories
 
-def register(*, database: Session, user_details: RegisterInput) -> ApplicationUser:
-    return register_repository(database=database, application_user=ApplicationUser(
-        first_name=user_details.first_name,
-        last_name=user_details.last_name,
-        date_of_birth=user_details.date_of_birth,
-        email=user_details.email,
-        username=user_details.username,
-        password=user_details.password
-    ))
+
+def register(*, database: Session, register_input: RegisterInput) -> RegisterOutput:
+    application_user = map_register_input_to_application_user(register_input=register_input)
+    created_user = authentication_repositories.register(database=database, application_user=application_user)
+    if created_user is not None:
+        return map_application_user_to_register_output(application_user=created_user)
+    else:
+        return None
