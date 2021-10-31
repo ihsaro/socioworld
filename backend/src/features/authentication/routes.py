@@ -2,13 +2,14 @@ from fastapi import (
     APIRouter,
     Body,
     Depends,
-    Response,
+    HTTPException,
     status
 )
 
 from sqlalchemy.orm import Session
 
 from configurations.dependencies import get_database
+from configurations.types import Error
 
 from features.authentication.models import (
     LoginInput,
@@ -21,12 +22,8 @@ from features.authentication import services as authentication_services
 router = APIRouter(prefix="/api/v1/authentication", tags=["Authentication"])
 
 
-@router.post("/register", response_model=RegisterOutput)
+@router.post("/register", response_model=RegisterOutput, status_code=status.HTTP_201_CREATED)
 async def register(
-        # Response object
-        response: Response,
-
-        # Payload
         register_input: RegisterInput = Body(
             ...,
             title="User details for registration in the system",
@@ -36,13 +33,11 @@ async def register(
         # Dependencies
         database: Session = Depends(get_database),
 ):
-    created_user = authentication_services.register(register_input=register_input, database=database)
-    if created_user is not None:
-        response.status_code = status.HTTP_201_CREATED
-        return created_user
-    else:
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        return None
+    register_output = authentication_services.register(register_input=register_input, database=database)
+    if isinstance(register_output, RegisterOutput):
+        return register_output
+    elif isinstance(register_output, Error):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=register_output.message)
 
 
 @router.post("/login")
