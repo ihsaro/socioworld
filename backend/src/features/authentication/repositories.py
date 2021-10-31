@@ -1,6 +1,6 @@
 from typing import Union
 
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm.session import Session
 
 from configurations.errors.repository.authentication import AuthenticationRepositoryErrors
@@ -9,7 +9,7 @@ from configurations.types import Error
 from features.authentication.entities import ApplicationUser
 
 
-def register(*, database: Session, application_user: ApplicationUser) -> Union[ApplicationUser, Error]:
+def create_application_user(*, database: Session, application_user: ApplicationUser) -> Union[ApplicationUser, Error]:
     try:
         database.add(application_user)
         database.commit()
@@ -20,3 +20,13 @@ def register(*, database: Session, application_user: ApplicationUser) -> Union[A
             code=AuthenticationRepositoryErrors.DUPLICATE_USER.name,
             message=AuthenticationRepositoryErrors.DUPLICATE_USER.value
         )
+
+
+def get_application_user_for_login(*, database: Session, username: str, password: str) -> Union[ApplicationUser, Error]:
+    try:
+        return database.query(ApplicationUser).filter(
+            ApplicationUser.username == username and
+            ApplicationUser.password == password
+        ).first()
+    except SQLAlchemyError:
+        return None

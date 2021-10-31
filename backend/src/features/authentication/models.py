@@ -5,8 +5,13 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class LoginInput(BaseModel):
-    username: str = Field(title="Username of user")
-    password: str = Field(title="Password of user")
+    username: str
+    password: str
+
+
+class LoginOutput(BaseModel):
+    access_token: str
+    token_type: str
 
 
 class RegisterInput(BaseModel):
