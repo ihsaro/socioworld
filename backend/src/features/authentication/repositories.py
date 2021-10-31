@@ -30,3 +30,10 @@ def get_application_user_for_login(*, database: Session, username: str, password
         ).first()
     except SQLAlchemyError:
         return None
+
+
+def get_application_user(*, database: Session, application_user_id: int) -> Union[ApplicationUser, Error]:
+    try:
+        return database.query(ApplicationUser).filter(ApplicationUser.id == application_user_id).first()
+    except SQLAlchemyError:
+        return None

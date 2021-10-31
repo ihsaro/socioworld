@@ -51,7 +51,7 @@ def login(*, database: Session, login_input: LoginInput) -> Union[LoginOutput, E
             code=AuthenticationServiceErrors.INVALID_CREDENTIALS.name,
             message=AuthenticationServiceErrors.INVALID_CREDENTIALS.value
         )
-    access_token = __generate_jwt_token__(to_encode={"sub": application_user.id})
+    access_token = __generate_jwt_token__(to_encode={"sub": str(application_user.id)})
     return LoginOutput(access_token=access_token, token_type="bearer")
 
 
