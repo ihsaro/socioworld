@@ -45,7 +45,6 @@ def login(*, database: Session, login_input: LoginInput) -> Union[LoginOutput, E
         username=login_input.username,
         password=login_input.password
     )
-    breakpoint()
     if application_user is None:
         return Error(
             code=AuthenticationServiceErrors.INVALID_CREDENTIALS.name,
