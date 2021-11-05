@@ -4,17 +4,17 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 
 
-class LoginInput(BaseModel):
+class LoginCredentials(BaseModel):
     username: str
     password: str
 
 
-class LoginOutput(BaseModel):
+class TokenCreated(BaseModel):
     access_token: str
     token_type: str
 
 
-class RegisterInput(BaseModel):
+class UserRegistrationDetails(BaseModel):
     first_name: str = Field(max_length=100, title="First name of user")
     last_name: str = Field(max_length=100, title="Last name of user")
     date_of_birth: Optional[date] = Field(title="Date of birth of user")
@@ -23,7 +23,7 @@ class RegisterInput(BaseModel):
     password: str = Field(title="Password of user")
 
 
-class RegisterOutput(BaseModel):
+class RegisteredUser(BaseModel):
     id: int
     first_name: str = Field(max_length=100, title="First name of user")
     last_name: str = Field(max_length=100, title="Last name of user")

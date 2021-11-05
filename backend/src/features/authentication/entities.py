@@ -5,13 +5,12 @@ from sqlalchemy import (
     Column,
     Date,
     Enum,
-    ForeignKey,
     Integer,
     String
 )
-from sqlalchemy.orm import relationship
 
 from configurations.database import Base
+from configurations.entities import ApplicationBaseEntity
 
 
 class Roles(enum.Enum):
@@ -19,10 +18,9 @@ class Roles(enum.Enum):
     USER = "User"
 
 
-class ApplicationUser(Base):
+class ApplicationUser(ApplicationBaseEntity, Base):
     __tablename__ = "application_user"
 
-    id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String)
     last_name = Column(String)
     date_of_birth = Column(Date)

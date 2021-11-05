@@ -15,10 +15,10 @@ from configurations.dependencies import get_database
 from configurations.types import Error
 
 from features.authentication.models import (
-    LoginInput,
-    LoginOutput,
-    RegisterInput,
-    RegisterOutput
+    LoginCredentials,
+    TokenCreated,
+    UserRegistrationDetails,
+    RegisteredUser
 )
 
 from features.authentication import services as authentication_services
@@ -26,9 +26,9 @@ from features.authentication import services as authentication_services
 router = APIRouter(prefix="/api/v1/authentication", tags=["Authentication"])
 
 
-@router.post("/register", response_model=RegisterOutput, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=RegisteredUser, status_code=status.HTTP_201_CREATED)
 async def register(
-    register_input: RegisterInput = Body(
+    register_input: UserRegistrationDetails = Body(
         ...,
         title="User details for registration in the system",
         description="User details for registration in the system"
@@ -37,31 +37,31 @@ async def register(
     # Dependencies
     database: Session = Depends(get_database),
 ):
-    register_output = authentication_services.register(register_input=register_input, database=database)
-    if isinstance(register_output, RegisterOutput):
-        return register_output
-    elif isinstance(register_output, Error):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=register_output.message)
+    registered_user = authentication_services.register(user_registration_details=register_input, database=database)
+    if isinstance(registered_user, RegisteredUser):
+        return registered_user
+    elif isinstance(registered_user, Error):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=registered_user.message)
 
 
-@router.post("/login", response_model=LoginOutput)
+@router.post("/login", response_model=TokenCreated)
 async def login(
     # Dependencies
     credentials: OAuth2PasswordRequestForm = Depends(),
     database: Session = Depends(get_database)
 ):
-    login_output = authentication_services.login(
+    token_created = authentication_services.login(
         database=database,
-        login_input=LoginInput(
+        login_credentials=LoginCredentials(
             username=credentials.username,
             password=credentials.password
         )
     )
 
-    if isinstance(login_output, Error):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=login_output.message)
+    if isinstance(token_created, Error):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=token_created.message)
     else:
-        return {"access_token": login_output.access_token, "token_type": login_output.token_type}
+        return {"access_token": token_created.access_token, "token_type": token_created.token_type}
 
 
 @router.post("/forgot-password")
