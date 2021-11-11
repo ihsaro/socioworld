@@ -2,12 +2,20 @@ from fastapi import (
     APIRouter,
     Body,
     Depends,
-    Path
+    Path,
+    HTTPException,
+    status
 )
 
-from configurations.dependencies import get_current_user
+from configurations.types import Error
+from configurations.dependencies import get_current_user, get_database
 
-from features.feed.models import FeedInput
+from features.feed.models import (
+    CreatedFeed,
+    NewFeed
+)
+
+from features.feed import services as feed_services
 
 
 router = APIRouter(prefix="/api/v1/feeds", tags=["Feed"])
@@ -16,12 +24,17 @@ router = APIRouter(prefix="/api/v1/feeds", tags=["Feed"])
 @router.post("")
 async def create_feed(
     # Body parameters
-    feed: FeedInput = Body(..., title="New feed details"),
+    feed: NewFeed = Body(..., title="New feed details"),
 
     # Dependencies
-    current_user=Depends(get_current_user)
+    current_user=Depends(get_current_user),
+    database=Depends(get_database)
 ):
-    pass
+    created_feed = feed_services.create_feed(database=database, new_feed=feed)
+    if isinstance(created_feed, CreatedFeed):
+        return created_feed
+    elif isinstance(created_feed, Error):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=created_feed.message)
 
 
 @router.get("")

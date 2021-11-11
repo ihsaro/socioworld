@@ -28,11 +28,11 @@ def get_application_user_for_login(*, database: Session, username: str, password
             ApplicationUser.username == username).filter(
             ApplicationUser.password == password).first()
     except SQLAlchemyError:
-        return None
+        return Error()
 
 
 def get_application_user(*, database: Session, application_user_id: int) -> Union[ApplicationUser, Error]:
     try:
         return database.query(ApplicationUser).filter(ApplicationUser.id == application_user_id).first()
     except SQLAlchemyError:
-        return None
+        return Error()
