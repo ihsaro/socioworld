@@ -12,7 +12,8 @@ from configurations.dependencies import get_current_user, get_database
 
 from features.feed.models import (
     CreatedFeed,
-    NewFeed
+    NewFeed,
+    UpdatedFeed
 )
 
 from features.feed import services as feed_services
@@ -30,7 +31,7 @@ async def create_feed(
     current_user=Depends(get_current_user),
     database=Depends(get_database)
 ):
-    created_feed = feed_services.create_feed(database=database, new_feed=feed)
+    created_feed = feed_services.create_feed(database=database, current_user=current_user, new_feed=feed)
     if isinstance(created_feed, CreatedFeed):
         return created_feed
     elif isinstance(created_feed, Error):
@@ -56,7 +57,7 @@ async def update_feed(
     feed_id: int = Path(..., title="The ID of the feed to be updated"),
 
     # Body parameters
-    feed: FeedInput = Body(..., title="Updated feed details")
+    feed: UpdatedFeed = Body(..., title="Updated feed details")
 ):
     pass
 
