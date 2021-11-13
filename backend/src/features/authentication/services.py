@@ -19,7 +19,7 @@ from features.authentication.entities import (
     Admin,
     ApplicationUser,
     Roles,
-    User
+    Client
 )
 from features.authentication.mappers import (
     map_application_user_to_registered_user,
@@ -57,7 +57,10 @@ def login(*, database: Session, login_credentials: LoginCredentials) -> Union[To
     return TokenCreated(access_token=access_token, token_type="bearer")
 
 
-def register(*, user_registration_details: UserRegistrationDetails, role: Roles, database: Session) -> Union[RegisteredUser, Error]:
+def register(*, user_registration_details: UserRegistrationDetails, role: Roles, database: Session) -> Union[
+    RegisteredUser,
+    Error
+]:
     application_user_to_be_created = map_user_registration_details_to_application_user(
             user_registration_details=user_registration_details
     )

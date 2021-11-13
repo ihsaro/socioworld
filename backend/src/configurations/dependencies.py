@@ -28,7 +28,7 @@ def get_database():
         database.close()
 
 
-def get_current_user(
+def get_current_application_user(
     token: str = Depends(OAuth2PasswordBearer(tokenUrl="api/v1/authentication/login")),
     database: Session = Depends(get_database)
 ):
@@ -53,7 +53,7 @@ def get_current_user(
         raise credentials_exception
 
 
-def get_current_admin_user(current_user: ApplicationUser = Depends(get_current_user)):
+def get_current_application_user_admin(current_user: ApplicationUser = Depends(get_current_application_user)):
     permissions_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail=AuthenticationServiceErrors.INVALID_ADMINISTRATOR.value,
@@ -61,6 +61,19 @@ def get_current_admin_user(current_user: ApplicationUser = Depends(get_current_u
     )
 
     if current_user.role == Roles.ADMIN:
+        return current_user
+    else:
+        raise permissions_exception
+
+
+def get_current_application_user_client(current_user: ApplicationUser = Depends(get_current_application_user)):
+    permissions_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=AuthenticationServiceErrors.INVALID_CLIENT.value,
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    if current_user.role == Roles.CLIENT:
         return current_user
     else:
         raise permissions_exception

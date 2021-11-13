@@ -8,7 +8,11 @@ from fastapi import (
 )
 
 from configurations.types import Error
-from configurations.dependencies import get_current_user, get_database
+from configurations.dependencies import (
+    get_current_application_user,
+    get_current_application_user_client,
+    get_database
+)
 
 from features.feed.models import (
     CreatedFeed,
@@ -28,7 +32,7 @@ async def create_feed(
     feed: NewFeed = Body(..., title="New feed details"),
 
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
     created_feed = feed_services.create_feed(database=database, current_user=current_user, new_feed=feed)
@@ -41,7 +45,7 @@ async def create_feed(
 @router.get("")
 async def read_feeds(
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user),
     database=Depends(get_database)
 ):
     pass
@@ -53,7 +57,7 @@ async def read_feed(
     feed_id: int = Path(..., title="The ID of the feed to be read"),
 
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user),
     database=Depends(get_database)
 ):
     pass
@@ -68,7 +72,7 @@ async def update_feed(
     feed: UpdatedFeed = Body(..., title="Updated feed details"),
 
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
     pass
@@ -80,7 +84,7 @@ async def delete_feed(
     feed_id: int = Path(..., title="The ID of the feed to be deleted"),
 
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user),
     database=Depends(get_database)
 ):
     pass

@@ -8,7 +8,10 @@ from fastapi import (
 )
 
 from configurations.types import Error
-from configurations.dependencies import get_current_user, get_database
+from configurations.dependencies import (
+    get_current_application_user_client,
+    get_database
+)
 
 router = APIRouter(prefix="/api/v1/friends", tags=["Friend"])
 
@@ -19,7 +22,7 @@ async def add_friend(
     user_id: int = Path(..., title="The ID of the user to be added as friend"),
 
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
     pass
@@ -28,7 +31,7 @@ async def add_friend(
 @router.get("")
 async def get_friends(
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
     pass
@@ -37,7 +40,7 @@ async def get_friends(
 @router.get("/feeds")
 async def get_friends_feeds(
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
     pass
@@ -49,7 +52,7 @@ async def get_friend(
     friend_id: int = Path(..., title="The ID of the friend to be obtained"),
 
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
     pass
@@ -61,7 +64,7 @@ async def delete_friend(
     friend_id: int = Path(..., title="The ID of the friend to be deleted"),
 
     # Dependencies
-    current_user=Depends(get_current_user),
+    current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
     pass

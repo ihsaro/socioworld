@@ -16,7 +16,7 @@ from configurations.entities import ApplicationBaseEntity
 
 class Roles(enum.Enum):
     ADMIN = "Admin",
-    USER = "User"
+    CLIENT = "Client"
 
 
 class ApplicationUser(ApplicationBaseEntity, Base):
@@ -25,15 +25,15 @@ class ApplicationUser(ApplicationBaseEntity, Base):
     first_name = Column(String)
     last_name = Column(String)
     date_of_birth = Column(Date)
-    role = Column(Enum(Roles), default=Roles.USER)
+    role = Column(Enum(Roles), default=Roles.CLIENT)
     is_active = Column(Boolean)
     email = Column(String, index=True, unique=True)
     username = Column(String, index=True, unique=True)
     password = Column(String)
 
 
-class User(ApplicationBaseEntity, Base):
-    __tablename__ = "user"
+class Client(ApplicationBaseEntity, Base):
+    __tablename__ = "client"
 
     application_user_id = Column(Integer, ForeignKey("application_user.id"))
 

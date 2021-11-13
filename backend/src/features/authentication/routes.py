@@ -13,8 +13,7 @@ from sqlalchemy.orm import Session
 
 from configurations.dependencies import (
     get_database,
-    get_current_user,
-    get_current_admin_user
+    get_current_application_user_admin
 )
 from configurations.types import Error
 
@@ -34,8 +33,8 @@ from features.authentication import services as authentication_services
 router = APIRouter(prefix="/api/v1/authentication", tags=["Authentication"])
 
 
-@router.post("/register-user", response_model=RegisteredUser, status_code=status.HTTP_201_CREATED)
-async def register_user(
+@router.post("/register-client", response_model=RegisteredUser, status_code=status.HTTP_201_CREATED)
+async def register_client(
     register_input: UserRegistrationDetails = Body(
         ...,
         title="User details for registration in the system",
@@ -47,7 +46,7 @@ async def register_user(
 ):
     registered_user = authentication_services.register(
         user_registration_details=register_input,
-        role=Roles.USER,
+        role=Roles.CLIENT,
         database=database
     )
     if isinstance(registered_user, RegisteredUser):
@@ -66,7 +65,7 @@ async def register_admin(
 
     # Dependencies
     database: Session = Depends(get_database),
-    current_user: ApplicationUser = Depends(get_current_admin_user)
+    current_user: ApplicationUser = Depends(get_current_application_user_admin)
 ):
     registered_user = authentication_services.register(
         user_registration_details=register_input,
