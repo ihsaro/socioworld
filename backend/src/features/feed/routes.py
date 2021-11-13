@@ -39,14 +39,22 @@ async def create_feed(
 
 
 @router.get("")
-async def read_feeds():
+async def read_feeds(
+    # Dependencies
+    current_user=Depends(get_current_user),
+    database=Depends(get_database)
+):
     pass
 
 
 @router.post("/{feed_id}")
 async def read_feed(
     # Path parameters
-    feed_id: int = Path(..., title="The ID of the feed to be read")
+    feed_id: int = Path(..., title="The ID of the feed to be read"),
+
+    # Dependencies
+    current_user=Depends(get_current_user),
+    database=Depends(get_database)
 ):
     pass
 
@@ -57,7 +65,11 @@ async def update_feed(
     feed_id: int = Path(..., title="The ID of the feed to be updated"),
 
     # Body parameters
-    feed: UpdatedFeed = Body(..., title="Updated feed details")
+    feed: UpdatedFeed = Body(..., title="Updated feed details"),
+
+    # Dependencies
+    current_user=Depends(get_current_user),
+    database=Depends(get_database)
 ):
     pass
 
@@ -65,6 +77,10 @@ async def update_feed(
 @router.delete("/{feed_id}")
 async def delete_feed(
     # Path parameters
-    feed_id: int = Path(..., title="The ID of the feed to be deleted")
+    feed_id: int = Path(..., title="The ID of the feed to be deleted"),
+
+    # Dependencies
+    current_user=Depends(get_current_user),
+    database=Depends(get_database)
 ):
     pass
