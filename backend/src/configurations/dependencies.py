@@ -17,6 +17,7 @@ from configurations.database import SessionLocal
 from configurations.errors.service.authentication import AuthenticationServiceErrors
 
 from features.authentication import selectors as authentication_selectors
+from features.authentication.entities import ApplicationUser, Roles
 
 
 def get_database():
@@ -50,3 +51,16 @@ def get_current_user(
         return application_user
     except JWTError:
         raise credentials_exception
+
+
+def get_current_admin_user(current_user: ApplicationUser = Depends(get_current_user)):
+    permissions_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=AuthenticationServiceErrors.INVALID_ADMINISTRATOR.value,
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    if current_user.role == Roles.ADMIN:
+        return current_user
+    else:
+        raise permissions_exception

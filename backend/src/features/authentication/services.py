@@ -16,7 +16,10 @@ from configurations.errors.service.authentication import AuthenticationServiceEr
 from configurations.types import Error
 
 from features.authentication.entities import (
-    ApplicationUser
+    Admin,
+    ApplicationUser,
+    Roles,
+    User
 )
 from features.authentication.mappers import (
     map_application_user_to_registered_user,
@@ -54,11 +57,14 @@ def login(*, database: Session, login_credentials: LoginCredentials) -> Union[To
     return TokenCreated(access_token=access_token, token_type="bearer")
 
 
-def register(*, database: Session, user_registration_details: UserRegistrationDetails) -> Union[RegisteredUser, Error]:
+def register(*, user_registration_details: UserRegistrationDetails, role: Roles, database: Session) -> Union[RegisteredUser, Error]:
+    application_user_to_be_created = map_user_registration_details_to_application_user(
+            user_registration_details=user_registration_details
+    )
+    application_user_to_be_created.role = role
     application_user = authentication_repositories.create_application_user(
         database=database,
-        application_user=map_user_registration_details_to_application_user(
-            user_registration_details=user_registration_details)
+        application_user=application_user_to_be_created
     )
     if isinstance(application_user, ApplicationUser):
         return map_application_user_to_registered_user(application_user=application_user)

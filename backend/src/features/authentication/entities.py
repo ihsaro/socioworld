@@ -5,6 +5,7 @@ from sqlalchemy import (
     Column,
     Date,
     Enum,
+    ForeignKey,
     Integer,
     String
 )
@@ -29,3 +30,15 @@ class ApplicationUser(ApplicationBaseEntity, Base):
     email = Column(String, index=True, unique=True)
     username = Column(String, index=True, unique=True)
     password = Column(String)
+
+
+class User(ApplicationBaseEntity, Base):
+    __tablename__ = "user"
+
+    application_user_id = Column(Integer, ForeignKey("application_user.id"))
+
+
+class Admin(ApplicationBaseEntity, Base):
+    __tablename__ = "admin"
+
+    application_user_id = Column(Integer, ForeignKey("application_user.id"))

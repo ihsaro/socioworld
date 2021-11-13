@@ -11,9 +11,17 @@ from fastapi.security import (
 
 from sqlalchemy.orm import Session
 
-from configurations.dependencies import get_database
+from configurations.dependencies import (
+    get_database,
+    get_current_user,
+    get_current_admin_user
+)
 from configurations.types import Error
 
+from features.authentication.entities import (
+    ApplicationUser,
+    Roles
+)
 from features.authentication.models import (
     LoginCredentials,
     TokenCreated,
@@ -26,8 +34,8 @@ from features.authentication import services as authentication_services
 router = APIRouter(prefix="/api/v1/authentication", tags=["Authentication"])
 
 
-@router.post("/register", response_model=RegisteredUser, status_code=status.HTTP_201_CREATED)
-async def register(
+@router.post("/register-user", response_model=RegisteredUser, status_code=status.HTTP_201_CREATED)
+async def register_user(
     register_input: UserRegistrationDetails = Body(
         ...,
         title="User details for registration in the system",
@@ -37,7 +45,34 @@ async def register(
     # Dependencies
     database: Session = Depends(get_database),
 ):
-    registered_user = authentication_services.register(user_registration_details=register_input, database=database)
+    registered_user = authentication_services.register(
+        user_registration_details=register_input,
+        role=Roles.USER,
+        database=database
+    )
+    if isinstance(registered_user, RegisteredUser):
+        return registered_user
+    elif isinstance(registered_user, Error):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=registered_user.message)
+
+
+@router.post("/register-admin", response_model=RegisteredUser, status_code=status.HTTP_201_CREATED)
+async def register_admin(
+    register_input: UserRegistrationDetails = Body(
+        ...,
+        title="Admin registration in the system",
+        description="Admin registration in the system"
+    ),
+
+    # Dependencies
+    database: Session = Depends(get_database),
+    current_user: ApplicationUser = Depends(get_current_admin_user)
+):
+    registered_user = authentication_services.register(
+        user_registration_details=register_input,
+        role=Roles.ADMIN,
+        database=database
+    )
     if isinstance(registered_user, RegisteredUser):
         return registered_user
     elif isinstance(registered_user, Error):
