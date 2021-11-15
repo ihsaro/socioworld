@@ -1,18 +1,20 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel
 
 
-class NewFeed(BaseModel):
+class FeedBase(BaseModel):
     title: str
     description: str
+    published: bool = True
 
 
-class CreatedFeed(BaseModel):
+class FeedInput(FeedBase):
+    pass
+
+
+class FeedOutput(FeedBase):
     id: int
-    title: str
-    description: str
-
-
-class UpdatedFeed(BaseModel):
-    id: int
-    title: str
-    description: str
+    created_timestamp: datetime
+    last_modified_timestamp: Optional[datetime]

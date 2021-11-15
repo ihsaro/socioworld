@@ -1,4 +1,7 @@
-from typing import Union
+from typing import (
+    List,
+    Union
+)
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -13,5 +16,19 @@ def create_feed(*, database: Session, feed: Feed) -> Union[Feed, Error]:
         database.add(feed)
         database.commit()
         return feed
+    except SQLAlchemyError:
+        return Error(code=GenericErrors.SERVER_ERROR.name, message=GenericErrors.SERVER_ERROR.value)
+
+
+def read_feeds_for_client(*, database: Session, client_id: int) -> Union[List[Feed], Error]:
+    try:
+        return database.query(Feed).filter(Feed.client_id == client_id).all()
+    except SQLAlchemyError:
+        return Error(code=GenericErrors.SERVER_ERROR.name, message=GenericErrors.SERVER_ERROR.value)
+
+
+def read_feeds(*, database: Session) -> Union[List[Feed], Error]:
+    try:
+        return database.query(Feed).all()
     except SQLAlchemyError:
         return Error(code=GenericErrors.SERVER_ERROR.name, message=GenericErrors.SERVER_ERROR.value)

@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import (
     APIRouter,
     Body,
@@ -15,9 +17,8 @@ from configurations.dependencies import (
 )
 
 from features.feed.models import (
-    CreatedFeed,
-    NewFeed,
-    UpdatedFeed
+    FeedOutput,
+    FeedInput,
 )
 
 from features.feed import services as feed_services
@@ -26,32 +27,32 @@ from features.feed import services as feed_services
 router = APIRouter(prefix="/api/v1/feeds", tags=["Feed"])
 
 
-@router.post("")
+@router.post("", response_model=FeedOutput)
 async def create_feed(
     # Body parameters
-    feed: NewFeed = Body(..., title="New feed details"),
+    feed: FeedInput = Body(..., title="New feed details"),
 
     # Dependencies
     current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
     created_feed = feed_services.create_feed(database=database, current_user=current_user, new_feed=feed)
-    if isinstance(created_feed, CreatedFeed):
+    if isinstance(created_feed, FeedOutput):
         return created_feed
     elif isinstance(created_feed, Error):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=created_feed.message)
 
 
-@router.get("")
+@router.get("", response_model=List[FeedOutput])
 async def read_feeds(
     # Dependencies
     current_user=Depends(get_current_application_user),
     database=Depends(get_database)
 ):
-    pass
+    return feed_services.read_feeds(database=database, current_user=current_user)
 
 
-@router.post("/{feed_id}")
+@router.post("/{feed_id}", response_model=FeedOutput)
 async def read_feed(
     # Path parameters
     feed_id: int = Path(..., title="The ID of the feed to be read"),
@@ -63,13 +64,13 @@ async def read_feed(
     pass
 
 
-@router.patch("/{feed_id}")
+@router.patch("/{feed_id}", response_model=FeedOutput)
 async def update_feed(
     # Path parameters
     feed_id: int = Path(..., title="The ID of the feed to be updated"),
 
     # Body parameters
-    feed: UpdatedFeed = Body(..., title="Updated feed details"),
+    feed: FeedInput = Body(..., title="Updated feed details"),
 
     # Dependencies
     current_user=Depends(get_current_application_user_client),

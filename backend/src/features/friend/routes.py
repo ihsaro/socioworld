@@ -16,10 +16,10 @@ from configurations.dependencies import (
 router = APIRouter(prefix="/api/v1/friends", tags=["Friend"])
 
 
-@router.post("/{user_id}")
+@router.post("/{client_id}")
 async def add_friend(
     # Path parameters
-    user_id: int = Path(..., title="The ID of the user to be added as friend"),
+    client_id: int = Path(..., title="The ID of the client to be added as friend"),
 
     # Dependencies
     current_user=Depends(get_current_application_user_client),
