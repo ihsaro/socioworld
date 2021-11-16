@@ -14,7 +14,7 @@ from configurations.constants.security import (
     SECRET_KEY
 )
 from configurations.database import SessionLocal
-from configurations.errors.service.authentication import AuthenticationServiceErrors
+from configurations.messages.error.service.authentication import AuthenticationServiceErrorMessages
 
 from features.authentication import selectors as authentication_selectors
 from features.authentication.entities import ApplicationUser, Roles
@@ -34,7 +34,7 @@ def get_current_application_user(
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=AuthenticationServiceErrors.INVALID_CREDENTIALS.value,
+        detail=AuthenticationServiceErrorMessages.INVALID_CREDENTIALS.value,
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -56,7 +56,7 @@ def get_current_application_user(
 def get_current_application_user_admin(current_user: ApplicationUser = Depends(get_current_application_user)):
     permissions_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=AuthenticationServiceErrors.INVALID_ADMINISTRATOR.value,
+        detail=AuthenticationServiceErrorMessages.INVALID_ADMINISTRATOR.value,
         headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -69,7 +69,7 @@ def get_current_application_user_admin(current_user: ApplicationUser = Depends(g
 def get_current_application_user_client(current_user: ApplicationUser = Depends(get_current_application_user)):
     permissions_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=AuthenticationServiceErrors.INVALID_CLIENT.value,
+        detail=AuthenticationServiceErrorMessages.INVALID_CLIENT.value,
         headers={"WWW-Authenticate": "Bearer"},
     )
 

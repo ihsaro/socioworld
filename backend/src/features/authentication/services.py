@@ -1,9 +1,7 @@
-import os
-
 from datetime import datetime, timedelta
 from typing import Union
 
-from jose import JWTError, jwt
+from jose import jwt
 
 from sqlalchemy.orm.session import Session
 
@@ -12,14 +10,12 @@ from configurations.constants.security import (
     ALGORITHM,
     SECRET_KEY
 )
-from configurations.errors.service.authentication import AuthenticationServiceErrors
+from configurations.messages.error.service.authentication import AuthenticationServiceErrorMessages
 from configurations.types import Error
 
 from features.authentication.entities import (
-    Admin,
     ApplicationUser,
-    Roles,
-    Client
+    Roles
 )
 from features.authentication.mappers import (
     map_application_user_to_registered_user,
@@ -50,8 +46,8 @@ def login(*, database: Session, login_credentials: LoginCredentials) -> Union[To
     )
     if application_user is None:
         return Error(
-            code=AuthenticationServiceErrors.INVALID_CREDENTIALS.name,
-            message=AuthenticationServiceErrors.INVALID_CREDENTIALS.value
+            code=AuthenticationServiceErrorMessages.INVALID_CREDENTIALS.name,
+            message=AuthenticationServiceErrorMessages.INVALID_CREDENTIALS.value
         )
     access_token = __generate_jwt_token__(to_encode={"sub": str(application_user.id)})
     return TokenCreated(access_token=access_token, token_type="bearer")

@@ -5,8 +5,11 @@ from typing import (
 
 from sqlalchemy.orm import Session
 
-from configurations.errors.generic import GenericErrors
-from configurations.types import Error
+from configurations.messages.error.generic import GenericErrorMessages
+from configurations.types import (
+    Error,
+    Success
+)
 
 from features.authentication.entities import (
     ApplicationUser,
@@ -64,7 +67,7 @@ def read_feed(*, database: Session, current_user: ApplicationUser, feed_id: int)
         feed_id=feed_id
     )
     if current_user.role == Roles.ADMIN:
-        return feed
+        return map_feed_to_feed_output(feed=feed)
     elif current_user.role == Roles.CLIENT:
         client_id = authentication_selectors.get_client_user_from_application_user_id(
                         database=database,
@@ -73,8 +76,34 @@ def read_feed(*, database: Session, current_user: ApplicationUser, feed_id: int)
 
         if feed.client_id != client_id:
             return Error(
-                code=GenericErrors.UNAUTHORIZED_OBJECT_ACCESS.name,
-                message=GenericErrors.UNAUTHORIZED_OBJECT_ACCESS.value
+                code=GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.name,
+                message=GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.value
             )
 
         return map_feed_to_feed_output(feed=feed)
+
+
+def delete_feed(*, database: Session, current_user: ApplicationUser, feed_id: int) -> [Success, Error]:
+    feed = database.query(Feed).get(feed_id)
+
+    if feed is None:
+        return Error(
+            code=GenericErrorMessages.OBJECT_NOT_FOUND.name,
+            message=GenericErrorMessages.OBJECT_NOT_FOUND.value
+        )
+
+    if current_user.role == Roles.ADMIN:
+        return feed_repositories.delete_feed(database=database, feed=feed)
+    elif current_user.role == Roles.CLIENT:
+        client_id = authentication_selectors.get_client_user_from_application_user_id(
+            database=database,
+            application_user_id=current_user.id
+        ).id
+
+        if feed.client_id != client_id:
+            return Error(
+                code=GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.name,
+                message=GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.value
+            )
+
+        return feed_repositories.delete_feed(database=database, feed=feed)

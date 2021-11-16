@@ -1,5 +1,5 @@
 from enum import Enum
 
 
-class AuthenticationRepositoryErrors(Enum):
+class AuthenticationRepositoryErrorMessages(Enum):
     DUPLICATE_USER = "User already exists"

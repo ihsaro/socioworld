@@ -6,11 +6,15 @@ from fastapi import (
     Depends,
     Path,
     HTTPException,
-    status
+    status,
+    Response
 )
 
-from configurations.errors.generic import GenericErrors
-from configurations.types import Error
+from configurations.messages.error.generic import GenericErrorMessages
+from configurations.types import (
+    Error,
+    Success
+)
 from configurations.dependencies import (
     get_current_application_user,
     get_current_application_user_client,
@@ -64,9 +68,9 @@ async def read_feed(
 ):
     feed = feed_services.read_feed(database=database, current_user=current_user, feed_id=feed_id)
     if isinstance(feed, Error):
-        if feed.code == GenericErrors.OBJECT_NOT_FOUND.name:
+        if feed.code == GenericErrorMessages.OBJECT_NOT_FOUND.name:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=feed.message)
-        elif feed.code == GenericErrors.UNAUTHORIZED_OBJECT_ACCESS.name:
+        elif feed.code == GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.name:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=feed.message)
     elif isinstance(feed, FeedOutput):
         return feed
@@ -96,4 +100,13 @@ async def delete_feed(
     current_user=Depends(get_current_application_user),
     database=Depends(get_database)
 ):
-    pass
+    deleted_feed = feed_services.delete_feed(database=database, current_user=current_user, feed_id=feed_id)
+
+    if isinstance(deleted_feed, Error):
+        if deleted_feed.code == GenericErrorMessages.OBJECT_NOT_FOUND.name:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=deleted_feed.message)
+        elif deleted_feed.code == GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.name:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=deleted_feed.message)
+    elif isinstance(deleted_feed, Success):
+        return Response(None, status_code=status.HTTP_204_NO_CONTENT)
+
