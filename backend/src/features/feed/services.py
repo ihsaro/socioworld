@@ -5,6 +5,7 @@ from typing import (
 
 from sqlalchemy.orm import Session
 
+from configurations.errors.generic import GenericErrors
 from configurations.types import Error
 
 from features.authentication.entities import (
@@ -55,3 +56,25 @@ def read_feeds(*, database: Session, current_user: ApplicationUser) -> List[Feed
     for feed in feeds:
         feeds_list.append(map_feed_to_feed_output(feed=feed))
     return feeds_list
+
+
+def read_feed(*, database: Session, current_user: ApplicationUser, feed_id: int) -> [FeedOutput, Error]:
+    feed = feed_repositories.read_feed(
+        database=database,
+        feed_id=feed_id
+    )
+    if current_user.role == Roles.ADMIN:
+        return feed
+    elif current_user.role == Roles.CLIENT:
+        client_id = authentication_selectors.get_client_user_from_application_user_id(
+                        database=database,
+                        application_user_id=current_user.id
+            ).id
+
+        if feed.client_id != client_id:
+            return Error(
+                code=GenericErrors.UNAUTHORIZED_OBJECT_ACCESS.name,
+                message=GenericErrors.UNAUTHORIZED_OBJECT_ACCESS.value
+            )
+
+        return map_feed_to_feed_output(feed=feed)

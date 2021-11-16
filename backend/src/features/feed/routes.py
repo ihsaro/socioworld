@@ -9,6 +9,7 @@ from fastapi import (
     status
 )
 
+from configurations.errors.generic import GenericErrors
 from configurations.types import Error
 from configurations.dependencies import (
     get_current_application_user,
@@ -52,7 +53,7 @@ async def read_feeds(
     return feed_services.read_feeds(database=database, current_user=current_user)
 
 
-@router.post("/{feed_id}", response_model=FeedOutput)
+@router.get("/{feed_id}", response_model=FeedOutput)
 async def read_feed(
     # Path parameters
     feed_id: int = Path(..., title="The ID of the feed to be read"),
@@ -61,7 +62,14 @@ async def read_feed(
     current_user=Depends(get_current_application_user),
     database=Depends(get_database)
 ):
-    pass
+    feed = feed_services.read_feed(database=database, current_user=current_user, feed_id=feed_id)
+    if isinstance(feed, Error):
+        if feed.code == GenericErrors.OBJECT_NOT_FOUND.name:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=feed.message)
+        elif feed.code == GenericErrors.UNAUTHORIZED_OBJECT_ACCESS.name:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=feed.message)
+    elif isinstance(feed, FeedOutput):
+        return feed
 
 
 @router.patch("/{feed_id}", response_model=FeedOutput)

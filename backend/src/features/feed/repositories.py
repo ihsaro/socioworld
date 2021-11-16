@@ -32,3 +32,14 @@ def read_feeds(*, database: Session) -> Union[List[Feed], Error]:
         return database.query(Feed).all()
     except SQLAlchemyError:
         return Error(code=GenericErrors.SERVER_ERROR.name, message=GenericErrors.SERVER_ERROR.value)
+
+
+def read_feed(*, database: Session, feed_id: int) -> Union[Feed, Error]:
+    try:
+        feed = database.query(Feed).get(feed_id)
+        if feed is None:
+            return Error(code=GenericErrors.OBJECT_NOT_FOUND.name, message=GenericErrors.OBJECT_NOT_FOUND.value)
+        else:
+            return feed
+    except SQLAlchemyError:
+        return Error(code=GenericErrors.SERVER_ERROR.name, message=GenericErrors.SERVER_ERROR.value)
