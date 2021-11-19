@@ -23,6 +23,7 @@ from features.feed.mappers import (
 )
 from features.feed.models import (
     FeedInput,
+    FeedInputPatch,
     FeedOutput
 )
 from features.feed import repositories as feed_repositories
@@ -66,6 +67,10 @@ def read_feed(*, database: Session, current_user: ApplicationUser, feed_id: int)
         database=database,
         feed_id=feed_id
     )
+
+    if isinstance(feed, Error):
+        return feed
+
     if current_user.role == Roles.ADMIN:
         return map_feed_to_feed_output(feed=feed)
     elif current_user.role == Roles.CLIENT:
@@ -81,6 +86,44 @@ def read_feed(*, database: Session, current_user: ApplicationUser, feed_id: int)
             )
 
         return map_feed_to_feed_output(feed=feed)
+
+
+def update_feed(*, database: Session, current_user: ApplicationUser, feed_id: int, updated_feed: FeedInputPatch) -> [
+    FeedOutput,
+    Error
+]:
+    feed_to_be_updated = feed_repositories.read_feed(database=database, feed_id=feed_id)
+
+    if isinstance(feed_to_be_updated, Error):
+        return feed_to_be_updated
+
+    client_id = authentication_selectors.get_client_user_from_application_user_id(
+        database=database,
+        application_user_id=current_user.id
+    ).id
+
+    if feed_to_be_updated.client_id != client_id:
+        return Error(
+            code=GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.name,
+            message=GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.value
+        )
+
+    updated_feed = updated_feed.__dict__
+
+    for key, value in dict(updated_feed).items():
+        if value is None:
+            del updated_feed[key]
+
+    feed = feed_repositories.update_feed(
+        database=database,
+        feed_id=feed_id,
+        updated_feed_attributes=updated_feed
+    )
+
+    if isinstance(feed, Feed):
+        return map_feed_to_feed_output(feed=feed)
+    elif isinstance(feed, Error):
+        return feed
 
 
 def delete_feed(*, database: Session, current_user: ApplicationUser, feed_id: int) -> [Success, Error]:

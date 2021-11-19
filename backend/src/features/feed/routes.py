@@ -24,6 +24,7 @@ from configurations.dependencies import (
 from features.feed.models import (
     FeedOutput,
     FeedInput,
+    FeedInputPatch
 )
 
 from features.feed import services as feed_services
@@ -82,13 +83,22 @@ async def update_feed(
     feed_id: int = Path(..., title="The ID of the feed to be updated"),
 
     # Body parameters
-    feed: FeedInput = Body(..., title="Updated feed details"),
+    feed: FeedInputPatch = Body(..., title="Updated feed details"),
 
     # Dependencies
     current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
-    pass
+    updated_feed = feed_services.update_feed(
+        database=database,
+        current_user=current_user,
+        feed_id=feed_id,
+        updated_feed=feed
+    )
+    if isinstance(updated_feed, FeedOutput):
+        return updated_feed
+    elif isinstance(updated_feed, Error):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=updated_feed.message)
 
 
 @router.delete("/{feed_id}")

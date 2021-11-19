@@ -1,8 +1,8 @@
-"""initial migration
+"""Initial migration
 
-Revision ID: 4d8b6425393b
+Revision ID: 8fc30e903e21
 Revises: 
-Create Date: 2021-11-13 22:13:04.750070
+Create Date: 2021-11-18 21:07:42.613769
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4d8b6425393b'
+revision = '8fc30e903e21'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -57,9 +57,9 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_timestamp', sa.TIMESTAMP(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('last_modified_timestamp', sa.TIMESTAMP(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
-    sa.Column('title', sa.String(), nullable=True),
-    sa.Column('description', sa.String(), nullable=True),
-    sa.Column('published', sa.Boolean(), nullable=True),
+    sa.Column('title', sa.String(), nullable=False),
+    sa.Column('description', sa.String(), nullable=False),
+    sa.Column('published', sa.Boolean(), nullable=False),
     sa.Column('client_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['client_id'], ['client.id'], ),
     sa.PrimaryKeyConstraint('id')

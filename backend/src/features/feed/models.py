@@ -14,6 +14,12 @@ class FeedInput(FeedBase):
     pass
 
 
+class FeedInputPatch(BaseModel):
+    title: Optional[str]
+    description: Optional[str]
+    published: Optional[bool]
+
+
 class FeedOutput(FeedBase):
     id: int
     created_timestamp: datetime
