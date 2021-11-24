@@ -46,7 +46,7 @@ async def create_feed(
     if isinstance(created_feed, FeedOutput):
         return created_feed
     elif isinstance(created_feed, Error):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=created_feed.message)
+        raise HTTPException(status_code=created_feed.message.status_code, detail=created_feed.message.message)
 
 
 @router.get("", response_model=List[FeedOutput])
@@ -69,10 +69,7 @@ async def read_feed(
 ):
     feed = feed_services.read_feed(database=database, current_user=current_user, feed_id=feed_id)
     if isinstance(feed, Error):
-        if feed.code == GenericErrorMessages.OBJECT_NOT_FOUND.name:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=feed.message)
-        elif feed.code == GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.name:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=feed.message)
+        raise HTTPException(status_code=feed.message.status_code, detail=feed.message.message)
     elif isinstance(feed, FeedOutput):
         return feed
 
@@ -98,7 +95,7 @@ async def update_feed(
     if isinstance(updated_feed, FeedOutput):
         return updated_feed
     elif isinstance(updated_feed, Error):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=updated_feed.message)
+        raise HTTPException(status_code=updated_feed.message.status_code, detail=updated_feed.message.message)
 
 
 @router.delete("/{feed_id}")
@@ -113,10 +110,6 @@ async def delete_feed(
     deleted_feed = feed_services.delete_feed(database=database, current_user=current_user, feed_id=feed_id)
 
     if isinstance(deleted_feed, Error):
-        if deleted_feed.code == GenericErrorMessages.OBJECT_NOT_FOUND.name:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=deleted_feed.message)
-        elif deleted_feed.code == GenericErrorMessages.UNAUTHORIZED_OBJECT_ACCESS.name:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=deleted_feed.message)
+        raise HTTPException(status_code=deleted_feed.message.status_code, detail=deleted_feed.message.message)
     elif isinstance(deleted_feed, Success):
-        return Response(None, status_code=status.HTTP_204_NO_CONTENT)
-
+        return Response(None, status_code=deleted_feed.message.status_code)

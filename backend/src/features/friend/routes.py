@@ -31,8 +31,8 @@ async def request_friend(
     requested_friend = friend_services.request_friend(database=database, current_user=current_user, client_id=client_id)
     if isinstance(requested_friend, FriendshipOutput):
         return requested_friend
-    else:
-        pass
+    elif isinstance(requested_friend, Error):
+        raise HTTPException(status_code=requested_friend.message.status_code, detail=requested_friend.message.message)
 
 
 @router.post("/approve/{client_id}")

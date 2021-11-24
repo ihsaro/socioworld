@@ -52,7 +52,7 @@ async def register_client(
     if isinstance(registered_user, RegisteredUser):
         return registered_user
     elif isinstance(registered_user, Error):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=registered_user.message)
+        raise HTTPException(status_code=registered_user.message.status_code, detail=registered_user.message.message)
 
 
 @router.post("/register-admin", response_model=RegisteredUser, status_code=status.HTTP_201_CREATED)
@@ -75,7 +75,7 @@ async def register_admin(
     if isinstance(registered_user, RegisteredUser):
         return registered_user
     elif isinstance(registered_user, Error):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=registered_user.message)
+        raise HTTPException(status_code=registered_user.message.status_code, detail=registered_user.message.message)
 
 
 @router.post("/login", response_model=TokenCreated)
@@ -93,7 +93,7 @@ async def login(
     )
 
     if isinstance(token_created, Error):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=token_created.message)
+        raise HTTPException(status_code=token_created.message.status_code, detail=token_created.message.message)
     else:
         return {"access_token": token_created.access_token, "token_type": token_created.token_type}
 
