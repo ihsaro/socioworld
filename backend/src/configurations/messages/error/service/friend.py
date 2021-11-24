@@ -13,3 +13,7 @@ class FriendServiceErrorMessages(Enum):
         message="Client requested does not exists",
         status_code=status.HTTP_404_NOT_FOUND
     )
+    CLIENT_REQUESTED_CANNOT_BE_CURRENT_USER = Message(
+        message="Client requested cannot be current user",
+        status_code=status.HTTP_400_BAD_REQUEST
+    )

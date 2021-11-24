@@ -19,6 +19,12 @@ def request_friend(*, database: Session, current_user: ApplicationUser, client_i
         application_user_id=current_user.id
     ).id
 
+    if current_user_client_id == client_id:
+        return Error(
+            code=FriendServiceErrorMessages.CLIENT_REQUESTED_CANNOT_BE_CURRENT_USER.name,
+            message=FriendServiceErrorMessages.CLIENT_REQUESTED_CANNOT_BE_CURRENT_USER.value
+        )
+
     requested_user_client = authentication_selectors.get_client_user_from_client_id(
         database=database,
         client_id=client_id

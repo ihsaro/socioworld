@@ -12,7 +12,9 @@ from features.friend.entities import Friendship
 def get_friendship(*, database: Session, client_one_id: int, client_two_id: int) -> Union[Friendship, Error]:
     try:
         friendship = database.query(Friendship).filter(
-            Friendship.client_id == client_one_id and Friendship.friend_id == client_two_id
+            Friendship.client_id == client_one_id
+        ).filter(
+            Friendship.friend_id == client_two_id
         ).first()
 
         if friendship is None:
@@ -20,6 +22,7 @@ def get_friendship(*, database: Session, client_one_id: int, client_two_id: int)
                 code=GenericErrorMessages.OBJECT_NOT_FOUND.name,
                 message=GenericErrorMessages.OBJECT_NOT_FOUND.value
             )
+        return friendship
     except SQLAlchemyError:
         return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
 
