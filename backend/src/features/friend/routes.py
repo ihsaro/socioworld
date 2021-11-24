@@ -13,13 +13,32 @@ from configurations.dependencies import (
     get_database
 )
 
+from features.friend import services as friend_services
+from features.friend.models import FriendshipOutput
+
 router = APIRouter(prefix="/api/v1/friends", tags=["Friend"])
 
 
-@router.post("/{client_id}")
-async def add_friend(
+@router.post("/request/{client_id}")
+async def request_friend(
     # Path parameters
-    client_id: int = Path(..., title="The ID of the client to be added as friend"),
+    client_id: int = Path(..., title="The ID of the client to be requested as friend"),
+
+    # Dependencies
+    current_user=Depends(get_current_application_user_client),
+    database=Depends(get_database)
+):
+    requested_friend = friend_services.request_friend(database=database, current_user=current_user, client_id=client_id)
+    if isinstance(requested_friend, FriendshipOutput):
+        return requested_friend
+    else:
+        pass
+
+
+@router.post("/approve/{client_id}")
+async def approve_friend(
+    # Path parameters
+    client_id: int = Path(..., title="The ID of the client to be approved as friend"),
 
     # Dependencies
     current_user=Depends(get_current_application_user_client),

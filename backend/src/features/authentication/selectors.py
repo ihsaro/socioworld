@@ -16,3 +16,10 @@ def get_client_user_from_application_user_id(*, database: Session, application_u
         database=database,
         application_user_id=application_user_id
     )
+
+
+def get_client_user_from_client_id(*, database: Session, client_id: int) -> Client:
+    return authentication_repositories.get_client_user_from_client_id(
+        database=database,
+        client_id=client_id
+    )

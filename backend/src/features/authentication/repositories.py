@@ -53,3 +53,10 @@ def get_client_user_from_application_user_id(*, database: Session, application_u
         return database.query(Client).filter(Client.application_user_id == application_user_id).first()
     except SQLAlchemyError:
         return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
+
+
+def get_client_user_from_client_id(*, database: Session, client_id: int) -> Union[Client, Error]:
+    try:
+        return database.query(Client).get(client_id)
+    except SQLAlchemyError:
+        return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)

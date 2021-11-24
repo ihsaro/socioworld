@@ -11,6 +11,9 @@ from features.authentication.entities import (
 from features.feed.entities import (
     Feed
 )
+from features.friend.entities import (
+    Friendship
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
