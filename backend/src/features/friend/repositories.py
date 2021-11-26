@@ -1,10 +1,18 @@
-from typing import Union
+from typing import (
+    List,
+    Union
+)
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.exc import UnmappedInstanceError
 
-from configurations.types import Error
+from configurations.types import (
+    Error,
+    Success
+)
 from configurations.messages.error.generic import GenericErrorMessages
+from configurations.messages.success.generic import GenericSuccessMessages
 
 from features.friend.entities import Friendship
 
@@ -74,3 +82,37 @@ def approve_friendship(database: Session, client_one_id: int, client_two_id: int
         return friendship_relationship_client_side.first()
     except SQLAlchemyError:
         return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
+
+
+def delete_friendship(database: Session, client_one_id: int, client_two_id: int) -> Union[Success, Error]:
+    try:
+        friendship_relationship_client_side = database.query(Friendship).filter(
+            Friendship.client_id == client_one_id
+        ).filter(
+            Friendship.friend_id == client_two_id
+        ).first()
+
+        friendship_relationship_friend_side = database.query(Friendship).filter(
+            Friendship.client_id == client_two_id
+        ).filter(
+            Friendship.friend_id == client_one_id
+        ).first()
+
+        database.delete(friendship_relationship_client_side)
+        database.delete(friendship_relationship_friend_side)
+        database.commit()
+        return Success(
+            code=GenericSuccessMessages.OBJECT_DELETED.name,
+            message=GenericSuccessMessages.OBJECT_DELETED.value
+        )
+    except UnmappedInstanceError:
+        return Error(
+            code=GenericErrorMessages.OBJECT_NOT_FOUND.name,
+            message=GenericErrorMessages.OBJECT_NOT_FOUND.value
+        )
+    except SQLAlchemyError:
+        return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
+
+
+def get_friends(*, database: Session, current_user_id: int) -> Union[List[Friendship], Error]:
+    pass

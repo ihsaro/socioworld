@@ -7,7 +7,10 @@ from sqlalchemy.orm import Session
 
 from configurations.messages.error.generic import GenericErrorMessages
 from configurations.messages.error.service.friend import FriendServiceErrorMessages
-from configurations.types import Error
+from configurations.types import (
+    Error,
+    Success
+)
 
 from features.authentication import selectors as authentication_selectors
 from features.authentication.entities import ApplicationUser
@@ -114,24 +117,13 @@ def get_friends(
     pass
 
 
-def get_friend(
-    *,
-    database: Session,
-    current_user: ApplicationUser,
-    client_id: int
-) -> Union[
-    FriendOutput, Error
-]:
-    pass
-
-
 def delete_friend(
     *,
     database: Session,
     current_user: ApplicationUser,
     client_id: int
 ) -> Union[
-    FriendshipOutput, Error
+    Success, Error
 ]:
     current_user_client_id = authentication_selectors.get_client_user_from_application_user_id(
         database=database,
@@ -147,7 +139,11 @@ def delete_friend(
     if isinstance(friendship, Error):
         return friendship
 
-    pass
+    return friend_repositories.delete_friendship(
+        database=database,
+        client_one_id=current_user_client_id,
+        client_two_id=client_id
+    )
 
 
 def __validate_and_get_friendship__(

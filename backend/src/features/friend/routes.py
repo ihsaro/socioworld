@@ -4,10 +4,14 @@ from fastapi import (
     Depends,
     Path,
     HTTPException,
+    Response,
     status
 )
 
-from configurations.types import Error
+from configurations.types import (
+    Error,
+    Success
+)
 from configurations.dependencies import (
     get_current_application_user_client,
     get_database
@@ -61,19 +65,6 @@ async def get_friends(
     pass
 
 
-@router.get("/{friend_id}")
-async def get_friend(
-    # Path parameters
-    friend_id: int = Path(..., title="The ID of the friend to be obtained"),
-
-    # Dependencies
-    current_user=Depends(get_current_application_user_client),
-    database=Depends(get_database)
-):
-    friend = friend_services.get_friend(database=database, current_user=current_user, client_id=friend_id)
-    pass
-
-
 @router.delete("/{friend_id}")
 async def delete_friend(
     # Path parameters
@@ -83,7 +74,19 @@ async def delete_friend(
     current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
-    pass
+    deleted_friendship = friend_services.delete_friend(
+        database=database,
+        current_user=current_user,
+        client_id=friend_id
+    )
+
+    if isinstance(deleted_friendship, Error):
+        raise HTTPException(
+            status_code=deleted_friendship.message.status_code,
+            detail=deleted_friendship.message.message
+        )
+    elif isinstance(deleted_friendship, Success):
+        return Response(None, status_code=deleted_friendship.message.status_code)
 
 
 @router.get("/feeds")
