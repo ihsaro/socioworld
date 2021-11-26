@@ -52,5 +52,25 @@ def add_friendship(*, database: Session, client_one_id: int, client_two_id: int)
         return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
 
 
-def approve_friendship(database: Session):
-    pass
+def approve_friendship(database: Session, client_one_id: int, client_two_id: int) -> Union[Friendship, Error]:
+    try:
+        friendship_relationship_client_side = database.query(Friendship).filter(
+            Friendship.client_id == client_one_id
+        ).filter(
+            Friendship.friend_id == client_two_id
+        )
+
+        friendship_relationship_friend_side = database.query(Friendship).filter(
+            Friendship.client_id == client_two_id
+        ).filter(
+            Friendship.friend_id == client_one_id
+        )
+
+        friendship_relationship_client_side.update({"approved": True})
+        friendship_relationship_friend_side.update({"approved": True})
+
+        database.commit()
+
+        return friendship_relationship_client_side.first()
+    except SQLAlchemyError:
+        return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)

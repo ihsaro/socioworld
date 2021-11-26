@@ -6,3 +6,9 @@ class FriendshipOutput(BaseModel):
     friend_id: int
     requested: bool
     approved: bool
+
+
+class FriendOutput(BaseModel):
+    client_id: int
+    first_name: str
+    last_name: str

@@ -44,11 +44,41 @@ async def approve_friend(
     current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
-    pass
+    approved_friend = friend_services.approve_friend(database=database, current_user=current_user, client_id=client_id)
+    if isinstance(approved_friend, FriendshipOutput):
+        return approved_friend
+    elif isinstance(approved_friend, Error):
+        raise HTTPException(status_code=approved_friend.message.status_code, detail=approved_friend.message.message)
 
 
 @router.get("")
 async def get_friends(
+    # Dependencies
+    current_user=Depends(get_current_application_user_client),
+    database=Depends(get_database)
+):
+    friends = friend_services.get_friends(database=database, current_user=current_user)
+    pass
+
+
+@router.get("/{friend_id}")
+async def get_friend(
+    # Path parameters
+    friend_id: int = Path(..., title="The ID of the friend to be obtained"),
+
+    # Dependencies
+    current_user=Depends(get_current_application_user_client),
+    database=Depends(get_database)
+):
+    friend = friend_services.get_friend(database=database, current_user=current_user, client_id=friend_id)
+    pass
+
+
+@router.delete("/{friend_id}")
+async def delete_friend(
+    # Path parameters
+    friend_id: int = Path(..., title="The ID of the friend to be deleted"),
+
     # Dependencies
     current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
@@ -58,30 +88,6 @@ async def get_friends(
 
 @router.get("/feeds")
 async def get_friends_feeds(
-    # Dependencies
-    current_user=Depends(get_current_application_user_client),
-    database=Depends(get_database)
-):
-    pass
-
-
-@router.post("/{friend_id}")
-async def get_friend(
-    # Path parameters
-    friend_id: int = Path(..., title="The ID of the friend to be obtained"),
-
-    # Dependencies
-    current_user=Depends(get_current_application_user_client),
-    database=Depends(get_database)
-):
-    pass
-
-
-@router.delete("/{friend_id}")
-async def delete_friend(
-    # Path parameters
-    friend_id: int = Path(..., title="The ID of the friend to be deleted"),
-
     # Dependencies
     current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
