@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import (
     APIRouter,
     Body,
@@ -62,7 +64,10 @@ async def get_friends(
     database=Depends(get_database)
 ):
     friends = friend_services.get_friends(database=database, current_user=current_user)
-    pass
+    if isinstance(friends, List):
+        return friends
+    elif isinstance(friends, Error):
+        raise HTTPException(status_code=friends.message.status_code, detail=friends.message.message)
 
 
 @router.delete("/{friend_id}")

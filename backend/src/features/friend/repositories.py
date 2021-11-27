@@ -14,7 +14,12 @@ from configurations.types import (
 from configurations.messages.error.generic import GenericErrorMessages
 from configurations.messages.success.generic import GenericSuccessMessages
 
+from features.authentication.entities import (
+    ApplicationUser,
+    Client
+)
 from features.friend.entities import Friendship
+from features.friend.models import FriendOutput
 
 
 def get_friendship(*, database: Session, client_one_id: int, client_two_id: int) -> Union[Friendship, Error]:
@@ -114,5 +119,34 @@ def delete_friendship(database: Session, client_one_id: int, client_two_id: int)
         return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
 
 
-def get_friends(*, database: Session, current_user_id: int) -> Union[List[Friendship], Error]:
-    pass
+def get_friends(*, database: Session, current_user_id: int) -> Union[List[FriendOutput], Error]:
+    try:
+        friends: List[FriendOutput] = []
+
+        for friendship, client, application_user in database.query(
+            Friendship, Client, ApplicationUser
+        ).filter(
+            Friendship.client_id == current_user_id
+        ).filter(
+            Friendship.approved
+        ).filter(
+            Friendship.friend_id == Client.id
+        ).filter(
+            Client.application_user_id == ApplicationUser.id
+        ).all():
+            friends.append(
+                FriendOutput(
+                    client_id=client.id,
+                    first_name=application_user.first_name,
+                    last_name=application_user.last_name
+                )
+            )
+
+        return friends
+    except UnmappedInstanceError:
+        return Error(
+            code=GenericErrorMessages.OBJECT_NOT_FOUND.name,
+            message=GenericErrorMessages.OBJECT_NOT_FOUND.value
+        )
+    except SQLAlchemyError:
+        return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)

@@ -114,7 +114,12 @@ def get_friends(
 ) -> Union[
     List[FriendOutput], Error
 ]:
-    pass
+    current_user_client_id = authentication_selectors.get_client_user_from_application_user_id(
+        database=database,
+        application_user_id=current_user.id
+    ).id
+
+    return friend_repositories.get_friends(database=database, current_user_id=current_user_client_id)
 
 
 def delete_friend(
