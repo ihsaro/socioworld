@@ -1,7 +1,9 @@
 import { Button } from "@mui/material";
 
+import { ProtectedRoute } from "components/ProtectedRoute";
+
 function HomePage() {
-    return <Button>Welcome to Next.js!</Button>
+  return <Button>Home</Button>
 }
   
-export default HomePage
+export default ProtectedRoute(HomePage);

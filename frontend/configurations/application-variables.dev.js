@@ -1,0 +1,1 @@
+export const APPLICATION_URL = "http://localhost:8000"
