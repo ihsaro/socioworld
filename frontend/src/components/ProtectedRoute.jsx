@@ -9,7 +9,7 @@ export const ProtectedRoute = Component => ({ ...props }) => {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = localStorage.getItem("JWT-Token");
 
     if (!accessToken) {
       router.replace("/login");

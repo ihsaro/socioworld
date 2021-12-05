@@ -1,8 +1,11 @@
 import { useState } from "react";
 
+import { useRouter } from "next/router";
+
 import {
   Alert,
   Button,
+  CircularProgress,
   Grid,
   Snackbar,
   TextField,
@@ -14,11 +17,19 @@ import { executePost } from "utils/api-communication";
 
 function Login() {
 
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [snackbarOpened, setSnackbarOpened] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [usernameHelperText, setUsernameHelperText] = useState("");
+  const [passwordHelperText, setPasswordHelperText] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  const [usernameInvalid, setUsernameInvalid] = useState(false);
+  const [passwordInvalid, setPasswordInvalid] = useState(false);
+  const [snackbarOpened, setSnackbarOpened] = useState(false);
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
 
   const styles = {
     parentContainer: {
@@ -33,7 +44,10 @@ function Login() {
   };
 
   const performLogin = async () => {
-    // validateLogin();
+    resetFormInputErrorStates();
+    if (!validateLogin()) return;
+
+    setIsLoginLoading(true);
     let formData = new FormData();
     formData.append("username", username);
     formData.append("password", password);
@@ -43,12 +57,15 @@ function Login() {
 
     if (response.status === 200 && response.data) {
       localStorage.setItem("JWT-Token", response.data["access_token"]);
+      router.replace("/");
+      return;
     }
     else if (response.data && response.data["detail"]) {
       setSnackbarSeverity("error");
       setSnackbarMessage(response.data["detail"]);
       setSnackbarOpened(true);
     }
+    setIsLoginLoading(false);
   }
 
   const handleSnackbarClose = (event, reason) => {
@@ -60,7 +77,26 @@ function Login() {
   }
 
   const validateLogin = () => {
+    let errorState = false;
+    if (username === "") {
+      errorState = true;
+      setUsernameInvalid(true);
+      setUsernameHelperText("Username is required");
+    }
+    if (password === "") {
+      errorState = true;
+      setPasswordInvalid(true);
+      setPasswordHelperText("Password is required");
+    }
+    return !errorState;
+  }
 
+  const resetFormInputErrorStates = () => {
+    setUsernameInvalid(false);
+    setUsernameHelperText("");
+    
+    setPasswordInvalid(false);
+    setPasswordHelperText("");
   }
 
   return (
@@ -69,6 +105,7 @@ function Login() {
       spacing={5}
       direction="column"
       alignItems="center"
+      component="form"
       style={styles.parentContainer}
     >
       <Grid item xs={12}>
@@ -76,6 +113,8 @@ function Login() {
       </Grid>
       <Grid item xs={12} style={styles.itemContainer}>
         <TextField 
+          error={usernameInvalid}
+          helperText={usernameHelperText}
           label="Username" 
           variant="standard" 
           value={username} 
@@ -86,6 +125,8 @@ function Login() {
       </Grid>
       <Grid item xs={12} style={styles.itemContainer}>
         <TextField 
+          error={passwordInvalid}
+          helperText={passwordHelperText}
           label="Password" 
           variant="standard" 
           type="password" 
@@ -96,7 +137,7 @@ function Login() {
         />
       </Grid>
       <Grid item container xs={12} justifyContent="space-between" style={styles.itemContainer}>
-        <Button variant="contained" onClick={performLogin}>Login</Button>
+        {isLoginLoading ? <CircularProgress /> : <Button variant="contained" onClick={performLogin}>Login</Button>}
         <Button color="error">Forgot password</Button>
       </Grid>
       <Snackbar open={snackbarOpened} autoHideDuration={6000} onClose={handleSnackbarClose}>
