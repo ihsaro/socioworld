@@ -1,14 +1,34 @@
-import { Button } from "@mui/material";
-import { AuthenticatedAppBar } from "components/AuthenticatedAppBar";
+import {
+  useEffect,
+  useState
+} from "react";
 
-import { ProtectedRoute } from "components/ProtectedRoute";
+import { GuestHome } from "components/home/GuestHome";
+import { ProtectedHome } from "components/home/ProtectedHome";
+import * as AuthenticationUtils from "utils/authentication-utils";
 
 function HomePage() {
-  return (
-    <>
-      <AuthenticatedAppBar />
-    </>
-  );
+
+  const [states, setStates] = useState({
+    isAuthenticated: false,
+    isLoading: true
+  });
+
+  useEffect(() => {
+    setStates({
+      ...states,
+      isAuthenticated: AuthenticationUtils.isUserAuthenticated(),
+      isLoading: false
+    });
+  }, [])
+
+  if (states.isLoading)
+    return <div>Loading</div>
+  else
+    if (states.isAuthenticated)
+      return <ProtectedHome />
+    else
+      return <GuestHome />
 }
   
-export default ProtectedRoute(HomePage);
+export default HomePage;
