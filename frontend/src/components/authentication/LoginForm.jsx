@@ -18,17 +18,15 @@ import {
 
 export const LoginForm = () => {
 
-  const [states, setStates] = useState({
-    username: "",
-    usernameError: false,
-    usernameErrorHelperText: "",
-    password: "",
-    passwordError: false,
-    passwordErrorHelperText: "",
-    showPassword: false,
-    rememberPassword: false,
-    isLoggingIn: false
-  });
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState(false);
+  const [usernameErrorHelperText, setUsernameErrorHelperText] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorHelperText, setPasswordErrorHelperText] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberPassword, setRememberPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Styles
   const styles = {
@@ -52,10 +50,7 @@ export const LoginForm = () => {
 
   // Events
   const handleClickShowPassword = () => {
-    setStates({
-      ...states,
-      showPassword: !states.showPassword,
-    });
+    setShowPassword(!showPassword);
   };
 
   const handleMouseDownPassword = (event) => {
@@ -63,40 +58,32 @@ export const LoginForm = () => {
   };
 
   const handleRememberPasswordChange = (event) => {
-    setStates({
-      ...states,
-      rememberPassword: event.target.checked
-    });
+    setRememberPassword(event.target.checked);
   }
 
   const performLogin = event => {
-    setStates({
-      ...states,
-      isLoggingIn: true,
-      usernameError: false,
-      usernameErrorHelperText: "",
-      passwordError: false,
-      passwordErrorHelperText: ""
-    });
+    setIsLoggingIn(true);
+    setUsernameError(false);
+    setUsernameErrorHelperText("");
+    setPasswordError(false);
+    setPasswordErrorHelperText("");
     
     if (!isLoginInputValid()) {
-      setStates({
-        ...states,
-        isLoggingIn: false,
-      });
+      setIsLoggingIn(false);
     }
   }
   
   const isLoginInputValid = () => {
-    setStates({
-      ...states,
-      usernameError: states.username === "",
-      usernameErrorHelperText: states.username === "" ? "Username required": "",
-      passwordError: states.password === "",
-      passwordErrorHelperText: states.password === "" ? "Password required": "",
-    });
-    
-    return !(states.usernameError || states.passwordError);
+
+    let usernameEmpty = username === "";
+    let passwordEmpty = password === "";
+
+    setUsernameError(usernameEmpty);
+    setUsernameErrorHelperText(usernameEmpty ? "Username required": "");
+    setPasswordError(passwordEmpty);
+    setPasswordErrorHelperText(passwordEmpty ? "Password required": "");
+
+    return !(usernameEmpty || passwordEmpty);
   }
 
   return (
@@ -109,23 +96,18 @@ export const LoginForm = () => {
         variant="standard"
         label="Username"
         required
-        error={states.usernameError}
-        helperText={states.usernameError ? states.usernameErrorHelperText : ""}
+        error={usernameError}
+        helperText={usernameError ? usernameErrorHelperText : ""}
         style={styles.formInputField}
-        onChange={e => {
-          setStates({
-            ...states,
-            username: e.target.value,
-          });
-        }}
+        onChange={e => setUsername(e.target.value)}
       />
       <TextField
         variant="standard"
         label="Password"
         required
-        error={states.passwordError}
-        helperText={states.passwordError ? states.passwordErrorHelperText : ""}
-        type={states.showPassword ? 'text' : 'password'}
+        error={passwordError}
+        helperText={passwordError ? passwordErrorHelperText : ""}
+        type={showPassword ? 'text' : 'password'}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -135,25 +117,20 @@ export const LoginForm = () => {
                 onMouseDown={handleMouseDownPassword}
                 edge="end"
               >
-                {states.showPassword ? <VisibilityOff /> : <Visibility />}
+                {showPassword ? <VisibilityOff /> : <Visibility />}
               </IconButton>
             </InputAdornment>
           )
         }}
         style={styles.formInputField}
-        onChange={e => {
-          setStates({
-            ...states,
-            password: e.target.value,
-          });
-        }}
+        onChange={e => setPassword(e.target.value)}
       />
       <Button
         variant="contained"
-        disabled={states.isLoggingIn}
+        disabled={isLoggingIn}
         style={styles.formInputField}
         onClick={performLogin}
-      >{states.isLoggingIn ? <CircularProgress style={styles.loginLoadingSpinner} /> : "Login"}</Button>
+      >{isLoggingIn ? <CircularProgress style={styles.loginLoadingSpinner} /> : "Login"}</Button>
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -165,8 +142,8 @@ export const LoginForm = () => {
         >Forgot Password</Button>
         <Stack direction="row">
           <Checkbox
-            checked={states.rememberPassword}
-            value={states.rememberPassword}
+            checked={rememberPassword}
+            value={rememberPassword}
             onChange={handleRememberPasswordChange}
           />
         </Stack>
