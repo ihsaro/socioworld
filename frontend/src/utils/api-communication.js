@@ -1,4 +1,4 @@
-import { APPLICATION_URL } from "configurations/application-variables";
+import * as ApplicationVariables from "configurations/application-variables";
 
 export const executeDelete = async () => {
 
@@ -20,10 +20,12 @@ export const executePost = async (
     cache = "no-cache", 
     credentials = "same-origin",
     headers = {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": "Bearer "
     },
     redirect = "follow",
-    referrerPolicy = "no-referrer"
+    referrerPolicy = "no-referrer",
+    requireAuthentication = true
   }
   ) => {
   if (headers["Content-Type"] === "application/json") {
@@ -33,8 +35,15 @@ export const executePost = async (
     delete headers["Content-Type"];
   }
 
+  if (requireAuthentication && localStorage && localStorage.getItem(ApplicationVariables.JWT_TOKEN_NAME)) {
+    headers["Authorization"] = headers["Authorization"].concat(localStorage.getItem(ApplicationVariables.JWT_TOKEN_NAME))
+  }
+  else {
+    delete headers["Authorization"];
+  }
+
   try {
-    const response = await fetch(`${APPLICATION_URL}${url}`, {
+    const response = await fetch(`${ApplicationVariables.APPLICATION_URL}${url}`, {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
       body: data, // body data type must match "Content-Type" header
       mode: mode, // no-cors, *cors, same-origin

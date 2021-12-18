@@ -101,3 +101,21 @@ async def get_friends_feeds(
     database=Depends(get_database)
 ):
     pass
+
+
+@router.get("/non-friended-clients")
+async def get_non_friended_clients(
+    # Dependencies
+    current_user=Depends(get_current_application_user_client),
+    database=Depends(get_database)
+):
+    pass
+
+
+@router.get("/pending-friendships")
+async def get_pending_friendships(
+    # Dependencies
+    current_user=Depends(get_current_application_user_client),
+    database=Depends(get_database)
+):
+    pass

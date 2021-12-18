@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from configurations.dependencies import (
     get_database,
+    get_current_application_user,
     get_current_application_user_admin
 )
 from configurations.types import Error
@@ -23,6 +24,7 @@ from features.authentication.entities import (
 )
 from features.authentication.models import (
     LoginCredentials,
+    AccessToken,
     TokenCreated,
     UserRegistrationDetails,
     RegisteredUser
@@ -100,4 +102,13 @@ async def login(
 
 @router.post("/forgot-password")
 async def forgot_password():
+    pass
+
+
+@router.post("/verify-token")
+async def verify_token(
+    # Dependencies
+    database: Session = Depends(get_database),
+    current_user: ApplicationUser = Depends(get_current_application_user)
+):
     pass
