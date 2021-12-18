@@ -24,7 +24,6 @@ from features.authentication.entities import (
 )
 from features.authentication.models import (
     LoginCredentials,
-    AccessToken,
     TokenCreated,
     UserRegistrationDetails,
     RegisteredUser

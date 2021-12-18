@@ -1,11 +1,15 @@
 import { useState } from "react";
 
+import { useRouter } from "next/router";
+
 import {
+  Alert,
   Button,
   CircularProgress,
   Checkbox,
   IconButton,
   InputAdornment,
+  Snackbar,
   Stack,
   TextField,
   Typography
@@ -16,8 +20,13 @@ import {
   VisibilityOff
 } from "@mui/icons-material";
 
+import * as APIEndpoints from "configurations/api-endpoints";
+import * as ApplicationVariables from "configurations/application-variables";
+import { executePost } from "utils/api-communication";
+
 export const LoginForm = () => {
 
+  // States
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorHelperText, setUsernameErrorHelperText] = useState("");
@@ -27,6 +36,12 @@ export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberPassword, setRememberPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarOpened, setSnackbarOpened] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  // Router
+  const router = useRouter();
 
   // Styles
   const styles = {
@@ -59,9 +74,15 @@ export const LoginForm = () => {
 
   const handleRememberPasswordChange = (event) => {
     setRememberPassword(event.target.checked);
-  }
+  };
 
-  const performLogin = event => {
+  const handleSnackbarClose = (event, reason) => {
+    if (reason !== "clickaway") {
+      setSnackbarOpened(false);
+    }
+  };
+
+  const performLogin = async () => {
     setIsLoggingIn(true);
     setUsernameError(false);
     setUsernameErrorHelperText("");
@@ -69,6 +90,33 @@ export const LoginForm = () => {
     setPasswordErrorHelperText("");
     
     if (!isLoginInputValid()) {
+      setIsLoggingIn(false);
+    }
+    else {
+      let loginFormData = new FormData();
+      loginFormData.append("username", username);
+      loginFormData.append("password", password);
+
+      let response = await executePost(
+        APIEndpoints.LOGIN, 
+        loginFormData,
+        {
+          headers: {
+            "Content-Type": null
+          },
+          requireAuthentication: false
+        }
+      );
+
+      if (response.status === 200 && response.data) {
+        localStorage.setItem(ApplicationVariables.JWT_TOKEN_NAME, response.data["access_token"]);
+        router.reload(window.location.pathname);
+      }
+      else if (response.data && response.data["detail"]) {
+        setSnackbarSeverity("error");
+        setSnackbarMessage(response.data["detail"]);
+        setSnackbarOpened(true);
+      }
       setIsLoggingIn(false);
     }
   }
@@ -148,6 +196,11 @@ export const LoginForm = () => {
           />
         </Stack>
       </Stack>
+      <Snackbar open={snackbarOpened} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   )
 }
