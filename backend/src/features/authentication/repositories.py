@@ -32,11 +32,10 @@ def create_application_user(*, database: Session, application_user: ApplicationU
         )
 
 
-def get_application_user_for_login(*, database: Session, username: str, password: str) -> Union[ApplicationUser, Error]:
+def get_application_user_for_login(*, database: Session, username: str) -> Union[ApplicationUser, Error]:
     try:
         return database.query(ApplicationUser).filter(
-            ApplicationUser.username == username).filter(
-            ApplicationUser.password == password).first()
+            ApplicationUser.username == username).first()
     except SQLAlchemyError:
         return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
 

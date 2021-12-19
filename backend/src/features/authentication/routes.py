@@ -99,8 +99,12 @@ async def login(
         return {"access_token": token_created.access_token, "token_type": token_created.token_type}
 
 
-@router.post("/forgot-password")
-async def forgot_password():
+@router.post("/change-password")
+async def change_password(
+    # Dependencies
+    database: Session = Depends(get_database),
+    current_user: ApplicationUser = Depends(get_current_application_user)
+):
     pass
 
 
