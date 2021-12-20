@@ -113,13 +113,43 @@ async def get_non_friended_clients(
     current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
-    pass
+    non_friended_clients = friend_services.get_non_friended_clients(database=database, current_user=current_user)
+    if isinstance(non_friended_clients, List):
+        return non_friended_clients
+    elif isinstance(non_friended_clients, Error):
+        raise HTTPException(
+            status_code=non_friended_clients.message.status_code,
+            detail=non_friended_clients.message.message
+        )
 
 
-@router.get("/pending-friendships")
-async def get_pending_friendships(
+@router.get("/requested-friendships")
+async def get_requested_friendships(
     # Dependencies
     current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
-    pass
+    requested_friendships = friend_services.get_requested_friendships(database=database, current_user=current_user)
+    if isinstance(requested_friendships, List):
+        return requested_friendships
+    elif isinstance(requested_friendships, Error):
+        raise HTTPException(
+            status_code=requested_friendships.message.status_code,
+            detail=requested_friendships.message.message
+        )
+
+
+@router.get("/received-friendships")
+async def get_received_friendships(
+    # Dependencies
+    current_user=Depends(get_current_application_user_client),
+    database=Depends(get_database)
+):
+    received_friendships = friend_services.get_received_friendships(database=database, current_user=current_user)
+    if isinstance(received_friendships, List):
+        return received_friendships
+    elif isinstance(received_friendships, Error):
+        raise HTTPException(
+            status_code=received_friendships.message.status_code,
+            detail=received_friendships.message.message
+        )

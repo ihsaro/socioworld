@@ -166,6 +166,51 @@ def get_friends_feeds(
     return friend_repositories.get_friends_feeds(database=database, current_user_id=current_user_client_id)
 
 
+def get_non_friended_clients(
+    *,
+    database: Session,
+    current_user: ApplicationUser
+) -> Union[
+    List[FriendOutput], Error
+]:
+    current_user_client_id = authentication_selectors.get_client_user_from_application_user_id(
+        database=database,
+        application_user_id=current_user.id
+    ).id
+
+    return friend_repositories.get_non_friended_clients(database=database, current_user_id=current_user_client_id)
+
+
+def get_requested_friendships(
+    *,
+    database: Session,
+    current_user: ApplicationUser
+) -> Union[
+    List[FriendOutput], Error
+]:
+    current_user_client_id = authentication_selectors.get_client_user_from_application_user_id(
+        database=database,
+        application_user_id=current_user.id
+    ).id
+
+    return friend_repositories.get_requested_friendships(database=database, current_user_id=current_user_client_id)
+
+
+def get_received_friendships(
+    *,
+    database: Session,
+    current_user: ApplicationUser
+) -> Union[
+    List[FriendOutput], Error
+]:
+    current_user_client_id = authentication_selectors.get_client_user_from_application_user_id(
+        database=database,
+        application_user_id=current_user.id
+    ).id
+
+    return friend_repositories.get_received_friendships(database=database, current_user_id=current_user_client_id)
+
+
 def __validate_and_get_friendship__(
     *,
     database: Session,

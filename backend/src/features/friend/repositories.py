@@ -156,15 +156,14 @@ def get_friends(*, database: Session, current_user_id: int) -> Union[List[Friend
         return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
 
 
-# It works, though it needs to be refactored since the first_name and last_name should be aggregated in the join
 def get_friends_feeds(*, database: Session, current_user_id: int) -> Union[List[FriendFeed], Error]:
     try:
         friends_feeds: List[FriendFeed] = []
 
-        feeds = database.query(
-            Feed
+        friends_feeds_query_objects = database.query(
+            Feed, Friendship, Client, ApplicationUser
         ).join(
-            Client
+            Client, Feed.client_id == Client.id
         ).join(
             Friendship, Friendship.friend_id == Client.id and Friendship.client_id == current_user_id
         ).join(
@@ -173,33 +172,93 @@ def get_friends_feeds(*, database: Session, current_user_id: int) -> Union[List[
             Friendship.approved
         ).filter(
             Feed.published
+        ).filter(
+            Feed.client_id != current_user_id
         ).all()
 
-        for feed in feeds:
+        for query_object in friends_feeds_query_objects:
             friends_feeds.append(
                 FriendFeed(
-                    client_id=feed.client_id,
-                    first_name=database.query(
-                        ApplicationUser
-                    ).join(
-                        Client, Client.application_user_id == ApplicationUser.id
-                    ).filter(
-                        Client.id == feed.client_id
-                    ).first().first_name,
-                    last_name=database.query(
-                        ApplicationUser
-                    ).join(
-                        Client, Client.application_user_id == ApplicationUser.id
-                    ).filter(
-                        Client.id == feed.client_id
-                    ).first().last_name,
-                    feed_title=feed.title,
-                    feed_description=feed.description,
-                    created_timestamp=feed.created_timestamp
+                    client_id=query_object.Feed.client_id,
+                    first_name=query_object.ApplicationUser.first_name,
+                    last_name=query_object.ApplicationUser.last_name,
+                    feed_title=query_object.Feed.title,
+                    feed_description=query_object.Feed.description,
+                    created_timestamp=query_object.Feed.created_timestamp
                 )
             )
 
         return friends_feeds
+    except UnmappedInstanceError:
+        return Error(
+            code=GenericErrorMessages.OBJECT_NOT_FOUND.name,
+            message=GenericErrorMessages.OBJECT_NOT_FOUND.value
+        )
+    except SQLAlchemyError:
+        return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
+
+
+def get_requested_friendships(*, database: Session, current_user_id: int) -> Union[List[FriendOutput], Error]:
+    try:
+        friends: List[FriendOutput] = []
+
+        for friendship, client, application_user in database.query(
+            Friendship, Client, ApplicationUser
+        ).filter(
+            Friendship.client_id == current_user_id
+        ).filter(
+            Friendship.approved == 0
+        ).filter(
+            Friendship.requested
+        ).filter(
+            Friendship.friend_id == Client.id
+        ).filter(
+            Client.application_user_id == ApplicationUser.id
+        ).all():
+            friends.append(
+                FriendOutput(
+                    client_id=client.id,
+                    first_name=application_user.first_name,
+                    last_name=application_user.last_name
+                )
+            )
+
+        return friends
+    except UnmappedInstanceError:
+        return Error(
+            code=GenericErrorMessages.OBJECT_NOT_FOUND.name,
+            message=GenericErrorMessages.OBJECT_NOT_FOUND.value
+        )
+    except SQLAlchemyError:
+        return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
+
+
+def get_received_friendships(*, database: Session, current_user_id: int) -> Union[List[FriendOutput], Error]:
+    try:
+        friends: List[FriendOutput] = []
+
+        for friendship, client, application_user in database.query(
+            Friendship, Client, ApplicationUser
+        ).filter(
+            Friendship.client_id == current_user_id
+        ).filter(
+            Friendship.approved == 0
+        ).filter(
+            Friendship.requested == 0
+        ).filter(
+            Friendship.friend_id == Client.id
+        ).filter(
+            Client.application_user_id == ApplicationUser.id
+        ).all():
+            friends.append(
+                FriendOutput(
+                    client_id=client.id,
+                    first_name=application_user.first_name,
+                    last_name=application_user.last_name
+                )
+            )
+
+        return friends
     except UnmappedInstanceError:
         return Error(
             code=GenericErrorMessages.OBJECT_NOT_FOUND.name,
