@@ -100,7 +100,11 @@ async def get_friends_feeds(
     current_user=Depends(get_current_application_user_client),
     database=Depends(get_database)
 ):
-    pass
+    friends_feeds = friend_services.get_friends_feeds(database=database, current_user=current_user)
+    if isinstance(friends_feeds, List):
+        return friends_feeds
+    elif isinstance(friends_feeds, Error):
+        raise HTTPException(status_code=friends_feeds.message.status_code, detail=friends_feeds.message.message)
 
 
 @router.get("/non-friended-clients")

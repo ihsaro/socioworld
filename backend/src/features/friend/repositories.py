@@ -18,8 +18,12 @@ from features.authentication.entities import (
     ApplicationUser,
     Client
 )
+from features.feed.entities import Feed
 from features.friend.entities import Friendship
-from features.friend.models import FriendOutput
+from features.friend.models import (
+    FriendFeed,
+    FriendOutput
+)
 
 
 def get_friendship(*, database: Session, client_one_id: int, client_two_id: int) -> Union[Friendship, Error]:
@@ -143,6 +147,59 @@ def get_friends(*, database: Session, current_user_id: int) -> Union[List[Friend
             )
 
         return friends
+    except UnmappedInstanceError:
+        return Error(
+            code=GenericErrorMessages.OBJECT_NOT_FOUND.name,
+            message=GenericErrorMessages.OBJECT_NOT_FOUND.value
+        )
+    except SQLAlchemyError:
+        return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
+
+
+# It works, though it needs to be refactored since the first_name and last_name should be aggregated in the join
+def get_friends_feeds(*, database: Session, current_user_id: int) -> Union[List[FriendFeed], Error]:
+    try:
+        friends_feeds: List[FriendFeed] = []
+
+        feeds = database.query(
+            Feed
+        ).join(
+            Client
+        ).join(
+            Friendship, Friendship.friend_id == Client.id and Friendship.client_id == current_user_id
+        ).join(
+            ApplicationUser, Client.application_user_id == ApplicationUser.id
+        ).filter(
+            Friendship.approved
+        ).filter(
+            Feed.published
+        ).all()
+
+        for feed in feeds:
+            friends_feeds.append(
+                FriendFeed(
+                    client_id=feed.client_id,
+                    first_name=database.query(
+                        ApplicationUser
+                    ).join(
+                        Client, Client.application_user_id == ApplicationUser.id
+                    ).filter(
+                        Client.id == feed.client_id
+                    ).first().first_name,
+                    last_name=database.query(
+                        ApplicationUser
+                    ).join(
+                        Client, Client.application_user_id == ApplicationUser.id
+                    ).filter(
+                        Client.id == feed.client_id
+                    ).first().last_name,
+                    feed_title=feed.title,
+                    feed_description=feed.description,
+                    created_timestamp=feed.created_timestamp
+                )
+            )
+
+        return friends_feeds
     except UnmappedInstanceError:
         return Error(
             code=GenericErrorMessages.OBJECT_NOT_FOUND.name,

@@ -49,15 +49,6 @@ async def create_feed(
         raise HTTPException(status_code=created_feed.message.status_code, detail=created_feed.message.message)
 
 
-@router.get("/all", response_model=List[FeedOutput])
-async def read_all_feeds(
-    # Dependencies
-    current_user=Depends(get_current_application_user),
-    database=Depends(get_database)
-):
-    pass
-
-
 @router.get("", response_model=List[FeedOutput])
 async def read_feeds(
     # Dependencies

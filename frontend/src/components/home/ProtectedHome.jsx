@@ -28,7 +28,7 @@ export const ProtectedHome = () => {
         <Stack
           direction="column"
         >
-          feeds
+          
         </Stack>
         <Stack
           direction="column"

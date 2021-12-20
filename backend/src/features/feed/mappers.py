@@ -8,7 +8,8 @@ from features.feed.models import (
 def map_feed_input_to_feed(*, new_feed: FeedInput) -> Feed:
     return Feed(
         title=new_feed.title,
-        description=new_feed.description
+        description=new_feed.description,
+        published=new_feed.published
     )
 
 
