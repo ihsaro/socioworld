@@ -1,9 +1,14 @@
 import { useState } from "react";
 
+import { useRouter } from "next/router";
+
 import {
+  Alert,
   Button,
+  CircularProgress,
   IconButton,
   InputAdornment,
+  Snackbar,
   Stack,
   TextField
 } from "@mui/material";
@@ -23,31 +28,37 @@ import { executePost } from "utils/api-communication";
 export const RegisterForm = () => {
 
   // States
-  const [firstName, setFirstName] = useState("");
+  const [firstName, setFirstName] = useState("frontend");
   const [firstNameError, setFirstNameError] = useState(false);
   const [firstNameErrorHelperText, setFirstNameErrorHelperText] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [lastName, setLastName] = useState("test");
   const [lastNameError, setLastNameError] = useState(false);
   const [lastNameErrorHelperText, setLastNameErrorHelperText] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [dateOfBirthError, setDateOfBirthError] = useState(false);
   const [dateOfBirthErrorHelperText, setDateOfBirthErrorHelperText] = useState("");
-  const [emailAddress, setEmailAddress] = useState("");
+  const [emailAddress, setEmailAddress] = useState("frontend");
   const [emailAddressError, setEmailAddressError] = useState(false);
   const [emailAddressErrorHelperText, setEmailAddressErrorHelperText] = useState("");
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("frontend");
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorHelperText, setUsernameErrorHelperText] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("1");
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorHelperText, setPasswordErrorHelperText] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("1");
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
   const [confirmPasswordErrorHelperText, setConfirmPasswordErrorHelperText] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarOpened, setSnackbarOpened] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [registerButtonText, setRegisterButtonText] = useState("Register");
+  const [successfulRegistration, setSuccessfulRegistration] = useState(false);
 
+  const router = useRouter();
 
   // Styles
   const styles = {
@@ -58,6 +69,11 @@ export const RegisterForm = () => {
     formInputField: {
       width: "75%",
       marginBottom: "2em"
+    },
+    registerLoadingSpinner: {
+      color: "white",
+      width: "25px",
+      height: "25px"
     }
   }
 
@@ -100,21 +116,34 @@ export const RegisterForm = () => {
     else {
       let response = await executePost(
         APIEndpoints.REGISTER_CLIENT, 
-        {},
+        {
+          "first_name": firstName,
+          "last_name": lastName,
+          "date_of_birth": `${dateOfBirth.getFullYear()}-${dateOfBirth.getMonth()}-${dateOfBirth.getDate()}`,
+          "email": emailAddress,
+          "username": username,
+          "password": password
+        },
         {
           requireAuthentication: false
         }
       );
 
       if (response.status === 201 && response.data) {
+        setSuccessfulRegistration(true);
+        setRegisterButtonText("Registration successful, redirecting to login page");
         router.reload(window.location.pathname);
+        return;
+      }
+      else if (response.status === 422) {
+        setSnackbarSeverity("error");
+        setSnackbarMessage("Input format error, please check your data and try again");
+        setSnackbarOpened(true);
       }
       else if (response.data && response.data["detail"]) {
-        /*
         setSnackbarSeverity("error");
         setSnackbarMessage(response.data["detail"]);
         setSnackbarOpened(true);
-        */
       }
       setIsRegistering(false);
     }
@@ -167,7 +196,13 @@ export const RegisterForm = () => {
       confirmPasswordEmpty ||
       passwordNotEqualsToConfirmPassword
     );
-  }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason !== "clickaway") {
+      setSnackbarOpened(false);
+    }
+  };
 
   return (
     <Stack
@@ -276,9 +311,15 @@ export const RegisterForm = () => {
       />
       <Button
         variant="contained"
+        disabled={isRegistering}
         style={styles.formInputField}
         onClick={performRegister}
-      >Register</Button>
+      >{isRegistering ? <CircularProgress style={styles.registerLoadingSpinner} /> : registerButtonText}</Button>
+      <Snackbar open={snackbarOpened} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   )
 }
