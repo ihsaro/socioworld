@@ -314,7 +314,7 @@ export const RegisterForm = () => {
         disabled={isRegistering}
         style={styles.formInputField}
         onClick={performRegister}
-      >{isRegistering ? <CircularProgress style={styles.registerLoadingSpinner} /> : registerButtonText}</Button>
+      >{!isRegistering || successfulRegistration ? registerButtonText : <CircularProgress style={styles.registerLoadingSpinner} />}</Button>
       <Snackbar open={snackbarOpened} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}

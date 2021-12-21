@@ -39,6 +39,8 @@ export const LoginForm = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarOpened, setSnackbarOpened] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [loginButtonText, setLoginButtonText] = useState("Login");
+  const [successfulLogin, setSuccessfulLogin] = useState(false);
 
   // Router
   const router = useRouter();
@@ -110,7 +112,10 @@ export const LoginForm = () => {
 
       if (response.status === 200 && response.data) {
         localStorage.setItem(ApplicationVariables.JWT_TOKEN_NAME, response.data["access_token"]);
+        setSuccessfulLogin(true);
+        setLoginButtonText("Login successful, redirecting to homepage");
         router.reload(window.location.pathname);
+        return;
       }
       else if (response.data && response.data["detail"]) {
         setSnackbarSeverity("error");
@@ -144,7 +149,7 @@ export const LoginForm = () => {
         label="Username"
         required
         error={usernameError}
-        helperText={usernameError ? usernameErrorHelperText : ""}
+        helperText={usernameErrorHelperText}
         style={styles.formInputField}
         onChange={e => setUsername(e.target.value)}
       />
@@ -153,7 +158,7 @@ export const LoginForm = () => {
         label="Password"
         required
         error={passwordError}
-        helperText={passwordError ? passwordErrorHelperText : ""}
+        helperText={passwordErrorHelperText}
         type={showPassword ? 'text' : 'password'}
         InputProps={{
           endAdornment: (
@@ -177,7 +182,7 @@ export const LoginForm = () => {
         disabled={isLoggingIn}
         style={styles.formInputField}
         onClick={performLogin}
-      >{isLoggingIn ? <CircularProgress style={styles.loginLoadingSpinner} /> : "Login"}</Button>
+      >{!isLoggingIn || successfulLogin ? loginButtonText : <CircularProgress style={styles.loginLoadingSpinner} />}</Button>
       <Stack
         direction="row"
         justifyContent="space-between"
