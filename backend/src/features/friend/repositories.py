@@ -198,6 +198,10 @@ def get_friends_feeds(*, database: Session, current_user_id: int) -> Union[List[
         return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
 
 
+def get_non_friended_clients(*, database: Session, current_user_id: int) -> Union[List[FriendOutput], Error]:
+    pass
+
+
 def get_requested_friendships(*, database: Session, current_user_id: int) -> Union[List[FriendOutput], Error]:
     try:
         friends: List[FriendOutput] = []

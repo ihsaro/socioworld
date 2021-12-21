@@ -122,7 +122,6 @@ export const LoginForm = () => {
   }
   
   const isLoginInputValid = () => {
-
     let usernameEmpty = username === "";
     let passwordEmpty = password === "";
 
