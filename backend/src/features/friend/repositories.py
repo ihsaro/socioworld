@@ -199,7 +199,40 @@ def get_friends_feeds(*, database: Session, current_user_id: int) -> Union[List[
 
 
 def get_non_friended_clients(*, database: Session, current_user_id: int) -> Union[List[FriendOutput], Error]:
-    pass
+    try:
+        non_friended_clients: List[FriendOutput] = []
+
+        for client, application_user in database.query(
+            Client, ApplicationUser
+        ).join(
+            ApplicationUser
+        ).filter(
+            Client.id != current_user_id
+        ).filter(
+            Client.id.notin_(
+                database.query(
+                    Friendship.friend_id
+                ).filter(
+                    Friendship.client_id == current_user_id
+                )
+            )
+        ).all():
+            non_friended_clients.append(
+                FriendOutput(
+                    client_id=client.id,
+                    first_name=application_user.first_name,
+                    last_name=application_user.last_name
+                )
+            )
+
+        return non_friended_clients
+    except UnmappedInstanceError:
+        return Error(
+            code=GenericErrorMessages.OBJECT_NOT_FOUND.name,
+            message=GenericErrorMessages.OBJECT_NOT_FOUND.value
+        )
+    except SQLAlchemyError:
+        return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
 
 
 def get_requested_friendships(*, database: Session, current_user_id: int) -> Union[List[FriendOutput], Error]:
