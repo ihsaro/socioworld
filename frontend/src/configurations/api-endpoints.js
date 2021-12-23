@@ -8,3 +8,4 @@ export const VERIFY_TOKEN = "/api/v1/authentication/verify-token";
 export const LIST_CREATE_FEED = "/api/v1/feeds";
 
 /* Friend API routes */
+export const LIST_FRIEND_FEEDS = "/api/v1/friends/feeds";
