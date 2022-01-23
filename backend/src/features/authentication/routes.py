@@ -1,8 +1,10 @@
+import json
 from fastapi import (
     APIRouter,
     Body,
     Depends,
     HTTPException,
+    Response,
     status
 )
 from fastapi.security import (
@@ -96,7 +98,19 @@ async def login(
     if isinstance(token_created, Error):
         raise HTTPException(status_code=token_created.message.status_code, detail=token_created.message.message)
     else:
-        return {"access_token": token_created.access_token, "token_type": token_created.token_type}
+        response = Response(
+            json.dumps({
+                "access_token": token_created.access_token,
+                "token_type": token_created.token_type
+            })
+        )
+        response.set_cookie(
+            "Authorization",
+            f"{token_created.token_type} {token_created.access_token}",
+            httponly=True,
+            samesite="strict"
+        )
+        return response 
 
 
 @router.post("/change-password")

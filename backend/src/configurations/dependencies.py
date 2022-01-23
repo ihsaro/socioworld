@@ -3,7 +3,6 @@ from fastapi import (
     HTTPException,
     status
 )
-from fastapi.security import OAuth2PasswordBearer
 
 from jose import jwt, JWTError
 
@@ -15,6 +14,7 @@ from configurations.constants.security import (
 )
 from configurations.database import SessionLocal
 from configurations.messages.error.service.authentication import AuthenticationServiceErrorMessages
+from configurations.security import OAuth2PasswordBearerExtended
 
 from features.authentication import selectors as authentication_selectors
 from features.authentication.entities import ApplicationUser, Roles
@@ -29,7 +29,7 @@ def get_database():
 
 
 def get_current_application_user(
-    token: str = Depends(OAuth2PasswordBearer(tokenUrl="api/v1/authentication/login")),
+    token: str = Depends(OAuth2PasswordBearerExtended(tokenUrl="api/v1/authentication/login")),
     database: Session = Depends(get_database)
 ):
     credentials_exception = HTTPException(
