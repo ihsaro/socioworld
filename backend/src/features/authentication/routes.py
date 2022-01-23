@@ -4,6 +4,7 @@ from fastapi import (
     Body,
     Depends,
     HTTPException,
+    Request,
     Response,
     status
 )
@@ -123,10 +124,16 @@ async def change_password(
     pass
 
 
-@router.post("/verify-token")
-async def verify_token(
+@router.get("/get-token")
+async def get_token(
+    # Request object
+    request: Request,
+
     # Dependencies
     database: Session = Depends(get_database),
     current_user: ApplicationUser = Depends(get_current_application_user)
 ):
-    breakpoint()
+    if request.headers.get("Authorization"):
+        return request.headers.get("Authorization")
+    elif request.cookies.get("Authorization"):
+        return request.cookies.get("Authorization")
