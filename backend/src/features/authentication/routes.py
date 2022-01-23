@@ -83,9 +83,13 @@ async def register_admin(
 
 @router.post("/login", response_model=TokenCreated)
 async def login(
+    # Response object
+    response: Response,
+
     # Dependencies
     credentials: OAuth2PasswordRequestForm = Depends(),
     database: Session = Depends(get_database)
+
 ):
     token_created = authentication_services.login(
         database=database,
@@ -98,19 +102,16 @@ async def login(
     if isinstance(token_created, Error):
         raise HTTPException(status_code=token_created.message.status_code, detail=token_created.message.message)
     else:
-        response = Response(
-            json.dumps({
-                "access_token": token_created.access_token,
-                "token_type": token_created.token_type
-            })
-        )
         response.set_cookie(
             "Authorization",
             f"{token_created.token_type} {token_created.access_token}",
             httponly=True,
             samesite="strict"
         )
-        return response 
+        return {
+            "access_token": token_created.access_token,
+            "token_type": token_created.token_type
+        }
 
 
 @router.post("/change-password")
@@ -128,4 +129,4 @@ async def verify_token(
     database: Session = Depends(get_database),
     current_user: ApplicationUser = Depends(get_current_application_user)
 ):
-    pass
+    breakpoint()
