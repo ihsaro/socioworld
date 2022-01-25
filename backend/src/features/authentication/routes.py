@@ -130,7 +130,6 @@ async def get_token(
     request: Request,
 
     # Dependencies
-    database: Session = Depends(get_database),
     current_user: ApplicationUser = Depends(get_current_application_user)
 ):
     if request.headers.get("Authorization"):

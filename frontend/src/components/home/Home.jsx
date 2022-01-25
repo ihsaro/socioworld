@@ -13,7 +13,7 @@ import * as APIEndpoints from "configurations/api-endpoints";
 import { getScreenSize } from "utils/screen-size";
 import * as ScreenConfigurations from "configurations/screen-configurations";
 
-export const ProtectedHome = () => {
+export const Home = () => {
 
   const [feeds, setFeeds] = useState([]);
   const [screenSize, setScreenSize] = useState(ScreenConfigurations.DESKTOP);

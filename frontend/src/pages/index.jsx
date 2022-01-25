@@ -3,11 +3,11 @@ import {
   useState
 } from "react";
 
-import { GuestHome } from "components/home/GuestHome";
-import { ProtectedHome } from "components/home/ProtectedHome";
-import * as AuthenticationUtils from "utils/authentication-utils";
+import { Home } from "components/home/Home";
 
-function HomePage() {
+import { ProtectedComponent } from "components/wrappers/ProtectedComponent";
+
+function index() {
 
   const [states, setStates] = useState({
     isAuthenticated: false,
@@ -17,18 +17,16 @@ function HomePage() {
   useEffect(() => {
     setStates({
       ...states,
-      isAuthenticated: AuthenticationUtils.isUserAuthenticated(),
       isLoading: false
     });
+
+    console.log("Not HOC");
   }, [])
 
   if (states.isLoading)
     return <div>Loading</div>
   else
-    if (states.isAuthenticated)
-      return <ProtectedHome />
-    else
-      return <GuestHome />
+    return <Home />
 }
   
-export default HomePage;
+export default ProtectedComponent(index);

@@ -1,4 +1,6 @@
-import { useState } from "react";
+import {
+  useState
+} from "react";
 
 import {
   Box,
@@ -11,7 +13,9 @@ import {
 import { LoginForm } from "components/authentication/LoginForm";
 import { RegisterForm } from "components/authentication/RegisterForm";
 
-export const GuestHome = () => {
+import { GuestComponent } from "components/wrappers/GuestComponent";
+
+function authentication() {
 
   const [states, setStates] = useState({
     currentTabIndex: 0
@@ -50,3 +54,5 @@ export const GuestHome = () => {
     </Stack>
   );
 }
+
+export default GuestComponent(authentication);
