@@ -15,13 +15,17 @@ export const ProtectedComponent = Component => ({ ...props }) => {
 
             if (response.status == 401) {
                 router.replace("/authentication");
-                console.log("HOC");
+                clearInterval(authenticationPoller);
+                return false;
             }
-            else if (response.status == 200)
+            else if (response.status == 200) {
                 setIsLoading(false);
+                return true;
+            }
         }
 
-        isUserAuthenticated();
+        if (isUserAuthenticated())
+            var authenticationPoller = setInterval(isUserAuthenticated, 10000);
     }, []);
 
     if (!isLoading)
