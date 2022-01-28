@@ -12,20 +12,16 @@ import {
   Snackbar,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
 
-import {
-  Visibility,
-  VisibilityOff
-} from "@mui/icons-material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import * as APIEndpoints from "configurations/api-endpoints";
 import * as ApplicationVariables from "configurations/application-variables";
 import { executePost } from "utils/api-communication";
 
 export const LoginForm = () => {
-
   // States
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState(false);
@@ -49,21 +45,21 @@ export const LoginForm = () => {
   const styles = {
     parentStack: {
       width: "30em",
-      marginTop: "2em"
+      marginTop: "2em",
     },
     secondaryUserActionsStack: {
-      width: "75%"
+      width: "75%",
     },
     formInputField: {
       width: "75%",
-      marginBottom: "2em"
+      marginBottom: "2em",
     },
     loginLoadingSpinner: {
       color: "white",
       width: "25px",
-      height: "25px"
-    }
-  }
+      height: "25px",
+    },
+  };
 
   // Events
   const handleClickShowPassword = () => {
@@ -90,60 +86,53 @@ export const LoginForm = () => {
     setUsernameErrorHelperText("");
     setPasswordError(false);
     setPasswordErrorHelperText("");
-    
+
     if (!isLoginInputValid()) {
       setIsLoggingIn(false);
-    }
-    else {
+    } else {
       let loginFormData = new FormData();
       loginFormData.append("username", username);
       loginFormData.append("password", password);
 
-      let response = await executePost(
-        APIEndpoints.LOGIN, 
-        loginFormData,
-        {
-          headers: {
-            "Content-Type": null
-          },
-          requireAuthentication: false
-        }
-      );
+      let response = await executePost(APIEndpoints.LOGIN, loginFormData, {
+        headers: {
+          "Content-Type": null,
+        },
+        requireAuthentication: false,
+      });
 
       if (response.status === 200 && response.data) {
-        localStorage.setItem(ApplicationVariables.JWT_TOKEN_NAME, response.data["access_token"]);
+        localStorage.setItem(
+          ApplicationVariables.JWT_TOKEN_NAME,
+          response.data["access_token"]
+        );
         setSuccessfulLogin(true);
         setLoginButtonText("Login successful, redirecting to homepage");
         router.reload(window.location.pathname);
         return;
-      }
-      else if (response.data && response.data["detail"]) {
+      } else if (response.data && response.data["detail"]) {
         setSnackbarSeverity("error");
         setSnackbarMessage(response.data["detail"]);
         setSnackbarOpened(true);
       }
       setIsLoggingIn(false);
     }
-  }
-  
+  };
+
   const isLoginInputValid = () => {
     let usernameEmpty = username === "";
     let passwordEmpty = password === "";
 
     setUsernameError(usernameEmpty);
-    setUsernameErrorHelperText(usernameEmpty ? "Username required": "");
+    setUsernameErrorHelperText(usernameEmpty ? "Username required" : "");
     setPasswordError(passwordEmpty);
-    setPasswordErrorHelperText(passwordEmpty ? "Password required": "");
+    setPasswordErrorHelperText(passwordEmpty ? "Password required" : "");
 
     return !(usernameEmpty || passwordEmpty);
-  }
+  };
 
   return (
-    <Stack
-      direction="column"
-      alignItems="center"
-      style={styles.parentStack}
-    >
+    <Stack direction="column" alignItems="center" style={styles.parentStack}>
       <TextField
         variant="standard"
         label="Username"
@@ -151,7 +140,7 @@ export const LoginForm = () => {
         error={usernameError}
         helperText={usernameErrorHelperText}
         style={styles.formInputField}
-        onChange={e => setUsername(e.target.value)}
+        onChange={(e) => setUsername(e.target.value)}
       />
       <TextField
         variant="standard"
@@ -159,7 +148,7 @@ export const LoginForm = () => {
         required
         error={passwordError}
         helperText={passwordErrorHelperText}
-        type={showPassword ? 'text' : 'password'}
+        type={showPassword ? "text" : "password"}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -172,26 +161,31 @@ export const LoginForm = () => {
                 {showPassword ? <VisibilityOff /> : <Visibility />}
               </IconButton>
             </InputAdornment>
-          )
+          ),
         }}
         style={styles.formInputField}
-        onChange={e => setPassword(e.target.value)}
+        onChange={(e) => setPassword(e.target.value)}
       />
       <Button
         variant="contained"
         disabled={isLoggingIn}
         style={styles.formInputField}
         onClick={performLogin}
-      >{!isLoggingIn || successfulLogin ? loginButtonText : <CircularProgress style={styles.loginLoadingSpinner} />}</Button>
+      >
+        {!isLoggingIn || successfulLogin ? (
+          loginButtonText
+        ) : (
+          <CircularProgress style={styles.loginLoadingSpinner} />
+        )}
+      </Button>
       <Stack
         direction="row"
         justifyContent="space-between"
         style={styles.secondaryUserActionsStack}
       >
-        <Button
-          variant="text"
-          color="error"
-        >Forgot Password</Button>
+        <Button variant="text" color="error">
+          Forgot Password
+        </Button>
         <Stack direction="row">
           <Checkbox
             checked={rememberPassword}
@@ -200,11 +194,19 @@ export const LoginForm = () => {
           />
         </Stack>
       </Stack>
-      <Snackbar open={snackbarOpened} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+      <Snackbar
+        open={snackbarOpened}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>
     </Stack>
-  )
-}
+  );
+};

@@ -10,23 +10,19 @@ import {
   InputAdornment,
   Snackbar,
   Stack,
-  TextField
+  TextField,
 } from "@mui/material";
 
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DatePicker from '@mui/lab/DatePicker';
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import DatePicker from "@mui/lab/DatePicker";
 
-import {
-  Visibility,
-  VisibilityOff
-} from "@mui/icons-material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import * as APIEndpoints from "configurations/api-endpoints";
 import { executePost } from "utils/api-communication";
 
 export const RegisterForm = () => {
-
   // States
   const [firstName, setFirstName] = useState("frontend");
   const [firstNameError, setFirstNameError] = useState(false);
@@ -36,10 +32,12 @@ export const RegisterForm = () => {
   const [lastNameErrorHelperText, setLastNameErrorHelperText] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [dateOfBirthError, setDateOfBirthError] = useState(false);
-  const [dateOfBirthErrorHelperText, setDateOfBirthErrorHelperText] = useState("");
+  const [dateOfBirthErrorHelperText, setDateOfBirthErrorHelperText] =
+    useState("");
   const [emailAddress, setEmailAddress] = useState("frontend");
   const [emailAddressError, setEmailAddressError] = useState(false);
-  const [emailAddressErrorHelperText, setEmailAddressErrorHelperText] = useState("");
+  const [emailAddressErrorHelperText, setEmailAddressErrorHelperText] =
+    useState("");
   const [username, setUsername] = useState("frontend");
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorHelperText, setUsernameErrorHelperText] = useState("");
@@ -48,7 +46,8 @@ export const RegisterForm = () => {
   const [passwordErrorHelperText, setPasswordErrorHelperText] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("1");
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
-  const [confirmPasswordErrorHelperText, setConfirmPasswordErrorHelperText] = useState("");
+  const [confirmPasswordErrorHelperText, setConfirmPasswordErrorHelperText] =
+    useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -64,18 +63,18 @@ export const RegisterForm = () => {
   const styles = {
     parentStack: {
       width: "30em",
-      marginTop: "2em"
+      marginTop: "2em",
     },
     formInputField: {
       width: "75%",
-      marginBottom: "2em"
+      marginBottom: "2em",
     },
     registerLoadingSpinner: {
       color: "white",
       width: "25px",
-      height: "25px"
-    }
-  }
+      height: "25px",
+    },
+  };
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -109,45 +108,46 @@ export const RegisterForm = () => {
     setPasswordErrorHelperText("");
     setConfirmPasswordError(false);
     setConfirmPasswordErrorHelperText("");
-    
+
     if (!isRegisterInputValid()) {
       setIsRegistering(false);
-    }
-    else {
+    } else {
       let response = await executePost(
-        APIEndpoints.REGISTER_CLIENT, 
+        APIEndpoints.REGISTER_CLIENT,
         {
-          "first_name": firstName,
-          "last_name": lastName,
-          "date_of_birth": `${dateOfBirth.getFullYear()}-${dateOfBirth.getMonth()}-${dateOfBirth.getDate()}`,
-          "email": emailAddress,
-          "username": username,
-          "password": password
+          first_name: firstName,
+          last_name: lastName,
+          date_of_birth: `${dateOfBirth.getFullYear()}-${dateOfBirth.getMonth()}-${dateOfBirth.getDate()}`,
+          email: emailAddress,
+          username: username,
+          password: password,
         },
         {
-          requireAuthentication: false
+          requireAuthentication: false,
         }
       );
 
       if (response.status === 201 && response.data) {
         setSuccessfulRegistration(true);
-        setRegisterButtonText("Registration successful, redirecting to login page");
+        setRegisterButtonText(
+          "Registration successful, redirecting to login page"
+        );
         router.reload(window.location.pathname);
         return;
-      }
-      else if (response.status === 422) {
+      } else if (response.status === 422) {
         setSnackbarSeverity("error");
-        setSnackbarMessage("Input format error, please check your data and try again");
+        setSnackbarMessage(
+          "Input format error, please check your data and try again"
+        );
         setSnackbarOpened(true);
-      }
-      else if (response.data && response.data["detail"]) {
+      } else if (response.data && response.data["detail"]) {
         setSnackbarSeverity("error");
         setSnackbarMessage(response.data["detail"]);
         setSnackbarOpened(true);
       }
       setIsRegistering(false);
     }
-  }
+  };
 
   const isRegisterInputValid = () => {
     let firstNameEmpty = firstName === "";
@@ -160,31 +160,36 @@ export const RegisterForm = () => {
     let passwordNotEqualsToConfirmPassword = password !== confirmPassword;
 
     setFirstNameError(firstNameEmpty);
-    setFirstNameErrorHelperText(firstNameEmpty ? "First name required": "");
+    setFirstNameErrorHelperText(firstNameEmpty ? "First name required" : "");
 
     setLastNameError(lastNameEmpty);
-    setLastNameErrorHelperText(lastNameEmpty ? "Last name required": "");
+    setLastNameErrorHelperText(lastNameEmpty ? "Last name required" : "");
 
     setDateOfBirthError(dateOfBirthEmpty);
-    setDateOfBirthErrorHelperText(dateOfBirthEmpty ? "Date of birth required": "");
+    setDateOfBirthErrorHelperText(
+      dateOfBirthEmpty ? "Date of birth required" : ""
+    );
 
     setEmailAddressError(emailAddressEmpty);
-    setEmailAddressErrorHelperText(emailAddressEmpty ? "Email address required": "");
+    setEmailAddressErrorHelperText(
+      emailAddressEmpty ? "Email address required" : ""
+    );
 
     setUsernameError(usernameEmpty);
-    setUsernameErrorHelperText(usernameEmpty ? "Username required": "");
-    
+    setUsernameErrorHelperText(usernameEmpty ? "Username required" : "");
+
     setPasswordError(passwordEmpty);
-    setPasswordErrorHelperText(passwordEmpty ? "Password required": "");
-    
-    setConfirmPasswordError(confirmPasswordEmpty || passwordNotEqualsToConfirmPassword);
+    setPasswordErrorHelperText(passwordEmpty ? "Password required" : "");
+
+    setConfirmPasswordError(
+      confirmPasswordEmpty || passwordNotEqualsToConfirmPassword
+    );
 
     if (confirmPasswordEmpty)
       setConfirmPasswordErrorHelperText("Please confirm your password");
     else if (passwordNotEqualsToConfirmPassword)
       setConfirmPasswordErrorHelperText("Passwords do not match");
-    else
-      setConfirmPasswordErrorHelperText("");
+    else setConfirmPasswordErrorHelperText("");
 
     return !(
       firstNameEmpty ||
@@ -205,11 +210,7 @@ export const RegisterForm = () => {
   };
 
   return (
-    <Stack
-      direction="column"
-      alignItems="center"
-      style={styles.parentStack}
-    >
+    <Stack direction="column" alignItems="center" style={styles.parentStack}>
       <TextField
         variant="standard"
         label="First Name"
@@ -218,7 +219,7 @@ export const RegisterForm = () => {
         helperText={firstNameErrorHelperText}
         style={styles.formInputField}
         value={firstName}
-        onChange={e => setFirstName(e.target.value)}
+        onChange={(e) => setFirstName(e.target.value)}
       />
       <TextField
         variant="standard"
@@ -228,15 +229,24 @@ export const RegisterForm = () => {
         helperText={lastNameErrorHelperText}
         style={styles.formInputField}
         value={lastName}
-        onChange={e => setLastName(e.target.value)}
+        onChange={(e) => setLastName(e.target.value)}
       />
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <DatePicker
           label="Date of Birth"
           value={dateOfBirth}
           maxDate={new Date()}
-          onChange={newDate => setDateOfBirth(newDate)}
-          renderInput={(params) => <TextField {...params} variant="standard" required error={dateOfBirthError} helperText={dateOfBirthErrorHelperText} style={styles.formInputField} />}
+          onChange={(newDate) => setDateOfBirth(newDate)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="standard"
+              required
+              error={dateOfBirthError}
+              helperText={dateOfBirthErrorHelperText}
+              style={styles.formInputField}
+            />
+          )}
         />
       </LocalizationProvider>
       <TextField
@@ -247,7 +257,7 @@ export const RegisterForm = () => {
         helperText={emailAddressErrorHelperText}
         style={styles.formInputField}
         value={emailAddress}
-        onChange={e => setEmailAddress(e.target.value)}
+        onChange={(e) => setEmailAddress(e.target.value)}
       />
       <TextField
         variant="standard"
@@ -257,7 +267,7 @@ export const RegisterForm = () => {
         helperText={usernameErrorHelperText}
         style={styles.formInputField}
         value={username}
-        onChange={e => setUsername(e.target.value)}
+        onChange={(e) => setUsername(e.target.value)}
       />
       <TextField
         variant="standard"
@@ -265,7 +275,7 @@ export const RegisterForm = () => {
         required
         error={passwordError}
         helperText={passwordErrorHelperText}
-        type={showPassword ? 'text' : 'password'}
+        type={showPassword ? "text" : "password"}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -278,11 +288,11 @@ export const RegisterForm = () => {
                 {showPassword ? <VisibilityOff /> : <Visibility />}
               </IconButton>
             </InputAdornment>
-          )
+          ),
         }}
         style={styles.formInputField}
         value={password}
-        onChange={e => setPassword(e.target.value)}
+        onChange={(e) => setPassword(e.target.value)}
       />
       <TextField
         variant="standard"
@@ -290,7 +300,7 @@ export const RegisterForm = () => {
         required
         error={confirmPasswordError}
         helperText={confirmPasswordErrorHelperText}
-        type={showConfirmPassword ? 'text' : 'password'}
+        type={showConfirmPassword ? "text" : "password"}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -303,23 +313,37 @@ export const RegisterForm = () => {
                 {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
               </IconButton>
             </InputAdornment>
-          )
+          ),
         }}
         style={styles.formInputField}
         value={confirmPassword}
-        onChange={e => setConfirmPassword(e.target.value)}
+        onChange={(e) => setConfirmPassword(e.target.value)}
       />
       <Button
         variant="contained"
         disabled={isRegistering}
         style={styles.formInputField}
         onClick={performRegister}
-      >{!isRegistering || successfulRegistration ? registerButtonText : <CircularProgress style={styles.registerLoadingSpinner} />}</Button>
-      <Snackbar open={snackbarOpened} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+      >
+        {!isRegistering || successfulRegistration ? (
+          registerButtonText
+        ) : (
+          <CircularProgress style={styles.registerLoadingSpinner} />
+        )}
+      </Button>
+      <Snackbar
+        open={snackbarOpened}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>
     </Stack>
-  )
-}
+  );
+};
