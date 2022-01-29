@@ -19,7 +19,7 @@ from configurations.dependencies import (
     get_current_application_user,
     get_current_application_user_admin
 )
-from configurations.types import Error
+from configurations.types import Error, Success
 
 from features.authentication.entities import (
     ApplicationUser,
@@ -136,3 +136,28 @@ async def get_token(
         return request.headers.get("Authorization")
     elif request.cookies.get("Authorization"):
         return request.cookies.get("Authorization")
+
+
+@router.post("/blacklist-token")
+async def blacklist_token(
+    # Request object
+    request: Request,
+
+    # Dependencies
+    current_user: ApplicationUser = Depends(get_current_application_user),
+    database: Session = Depends(get_database)
+):
+    if request.headers.get("Authorization"):
+        token = request.headers.get("Authorization")
+    elif request.cookies.get("Authorization"):
+        token = request.cookies.get("Authorization")
+        request.cookies.pop("Authorization")
+
+    blacklisted_token = authentication_services.blacklist_token(token=token, database=database)
+    if isinstance(blacklisted_token, Success):
+        return blacklisted_token
+    elif isinstance(blacklisted_token, Error):
+        raise HTTPException(
+            status_code=blacklisted_token.message.status_code,
+            detail=blacklisted_token.message.message
+        )

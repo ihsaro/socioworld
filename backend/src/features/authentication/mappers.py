@@ -1,4 +1,4 @@
-from features.authentication.entities import ApplicationUser
+from features.authentication.entities import ApplicationUser, BlacklistedToken
 from features.authentication.models import UserRegistrationDetails, RegisteredUser
 
 
@@ -24,4 +24,10 @@ def map_application_user_to_registered_user(*, application_user: ApplicationUser
         date_of_birth=application_user.date_of_birth,
         email=application_user.email,
         username=application_user.username
+    )
+
+
+def map_token_to_blacklist_token(*, token: str) -> BlacklistedToken:
+    return BlacklistedToken(
+        token=token
     )

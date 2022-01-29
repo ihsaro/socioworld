@@ -13,14 +13,17 @@ from configurations.constants.security import (
     SECRET_KEY
 )
 from configurations.messages.error.service.authentication import AuthenticationServiceErrorMessages
-from configurations.types import Error
+from configurations.messages.success.service.authentication import AuthenticationServiceSuccessMessages
+from configurations.types import Error, Success
 
 from features.authentication.entities import (
     ApplicationUser,
+    BlacklistedToken,
     Roles
 )
 from features.authentication.mappers import (
     map_application_user_to_registered_user,
+    map_token_to_blacklist_token,
     map_user_registration_details_to_application_user
 )
 from features.authentication.models import (
@@ -92,3 +95,22 @@ def register(*, user_registration_details: UserRegistrationDetails, role: Roles,
         return map_application_user_to_registered_user(application_user=application_user)
     elif isinstance(application_user, Error):
         return application_user
+
+
+def blacklist_token(*, token: str, database: Session) -> Union[
+    Success,
+    Error
+]:
+    blacklisted_token = authentication_repositories.add_token_to_blacklist(
+        database=database,
+        token=map_token_to_blacklist_token(token=token)
+    )
+
+    if isinstance(blacklisted_token, BlacklistedToken):
+        return Success(
+            code=AuthenticationServiceSuccessMessages.TOKEN_BLACKLISTED.name,
+            message=AuthenticationServiceSuccessMessages.TOKEN_BLACKLISTED.value
+        )
+    elif isinstance(blacklisted_token, Error):
+        return blacklisted_token
+

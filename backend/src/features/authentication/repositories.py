@@ -10,6 +10,7 @@ from configurations.types import Error
 from features.authentication.entities import (
     Admin,
     ApplicationUser,
+    BlacklistedToken,
     Client,
     Roles
 )
@@ -57,5 +58,14 @@ def get_client_user_from_application_user_id(*, database: Session, application_u
 def get_client_user_from_client_id(*, database: Session, client_id: int) -> Union[Client, Error]:
     try:
         return database.query(Client).get(client_id)
+    except SQLAlchemyError:
+        return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)
+
+
+def add_token_to_blacklist(*, database: Session, token: BlacklistedToken):
+    try:
+        database.add(token)
+        database.commit()
+        return token
     except SQLAlchemyError:
         return Error(code=GenericErrorMessages.SERVER_ERROR.name, message=GenericErrorMessages.SERVER_ERROR.value)

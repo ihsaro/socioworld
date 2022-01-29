@@ -42,3 +42,9 @@ class Admin(ApplicationBaseEntity, Base):
     __tablename__ = "admin"
 
     application_user_id = Column(Integer, ForeignKey("application_user.id"))
+
+
+class BlacklistedToken(ApplicationBaseEntity, Base):
+    __tablename__ = "blacklisted_token"
+
+    token = Column(String)

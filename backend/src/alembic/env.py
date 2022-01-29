@@ -6,7 +6,8 @@ from sqlalchemy import pool
 from alembic import context
 
 from features.authentication.entities import (
-    ApplicationUser
+    ApplicationUser,
+    BlacklistedToken,
 )
 from features.feed.entities import (
     Feed
