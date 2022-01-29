@@ -143,6 +143,9 @@ async def blacklist_token(
     # Request object
     request: Request,
 
+    # Response object
+    response: Response,
+
     # Dependencies
     current_user: ApplicationUser = Depends(get_current_application_user),
     database: Session = Depends(get_database)
@@ -150,11 +153,11 @@ async def blacklist_token(
     if request.headers.get("Authorization"):
         token = request.headers.get("Authorization")
     elif request.cookies.get("Authorization"):
-        token = request.cookies.get("Authorization")
-        request.cookies.pop("Authorization")
+        token = request.cookies.get("Authorization")    
 
     blacklisted_token = authentication_services.blacklist_token(token=token, database=database)
     if isinstance(blacklisted_token, Success):
+        response.delete_cookie("Authorization")
         return blacklisted_token
     elif isinstance(blacklisted_token, Error):
         raise HTTPException(

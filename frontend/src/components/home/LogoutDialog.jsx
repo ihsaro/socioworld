@@ -5,9 +5,21 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
+import { BLACKLIST_TOKEN } from "configurations/api-endpoints";
+import { executePost } from "utils/api-communication";
+
 export const LogoutDialog = ({ logoutDialogOpen, setLogoutDialogOpen }) => {
+
+  const logout = () => {
+    executePost(BLACKLIST_TOKEN, {}, {}).then(response => {
+      debugger;
+    });
+  };
+
   return (
     <Dialog
+      fullWidth
+      maxWidth="sm"
       open={logoutDialogOpen}
       onClose={() => setLogoutDialogOpen(false)}
       aria-labelledby="alert-dialog-title"
@@ -21,7 +33,7 @@ export const LogoutDialog = ({ logoutDialogOpen, setLogoutDialogOpen }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setLogoutDialogOpen(false)}>NO</Button>
-        <Button onClick={() => setLogoutDialogOpen(false)} autoFocus>
+        <Button onClick={() => logout()} autoFocus>
           YES
         </Button>
       </DialogActions>

@@ -7,11 +7,10 @@ import { LogoutDialog } from "components/home/LogoutDialog";
 import { ProtectedComponent } from "components/wrappers/ProtectedComponent";
 
 import { getScreenSize } from "utils/screen-size";
-import * as ScreenConfigurations from "configurations/screen-configurations";
 
 function index() {
-  const [screenSize, setScreenSize] = useState(ScreenConfigurations.DESKTOP);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState(<div>Feeds</div>);
 
   useEffect(() => {
     window.addEventListener("resize", () => {
@@ -19,14 +18,13 @@ function index() {
     });
   }, []);
 
-  if (screenSize == ScreenConfigurations.DESKTOP)
-    return (
-      <Stack direction="column">
-        <ApplicationBottomNavigation setLogoutDialogOpen={setLogoutDialogOpen} />
-        <LogoutDialog logoutDialogOpen={logoutDialogOpen} setLogoutDialogOpen={setLogoutDialogOpen} />
-      </Stack>
-    );
-  else return <div>Hello world!</div>;
+  return (
+    <Stack direction="column">
+      {selectedFeature}
+      <ApplicationBottomNavigation setLogoutDialogOpen={setLogoutDialogOpen} setSelectedFeature={setSelectedFeature} />
+      <LogoutDialog logoutDialogOpen={logoutDialogOpen} setLogoutDialogOpen={setLogoutDialogOpen} />
+    </Stack>
+  );
 }
 
 export default ProtectedComponent(index);

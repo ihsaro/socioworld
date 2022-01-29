@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
+import { LoadingMask } from "components/wrappers/LoadingMask";
 import { executeGet } from "utils/api-communication";
 import * as API_ENDPOINTS from "configurations/api-endpoints";
 
@@ -23,5 +24,5 @@ export const GuestComponent =
     }, []);
 
     if (!isLoading) return <Component {...props} />;
-    else return <div>Loading ...</div>;
+    else return <LoadingMask />;
   };

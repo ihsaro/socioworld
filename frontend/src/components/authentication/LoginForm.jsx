@@ -141,6 +141,10 @@ export const LoginForm = () => {
         helperText={usernameErrorHelperText}
         style={styles.formInputField}
         onChange={(e) => setUsername(e.target.value)}
+        onKeyUp={e => {
+          if (e.key === "Enter")
+            performLogin()
+        }}
       />
       <TextField
         variant="standard"
@@ -165,6 +169,10 @@ export const LoginForm = () => {
         }}
         style={styles.formInputField}
         onChange={(e) => setPassword(e.target.value)}
+        onKeyUp={e => {
+          if (e.key === "Enter")
+            performLogin()
+        }}
       />
       <Button
         variant="contained"
