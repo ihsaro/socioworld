@@ -13,7 +13,8 @@ export const ProtectedComponent =
 
     useEffect(() => {
       const isUserAuthenticated = async () => {
-        let response = await executeGet(API_ENDPOINTS.GET_TOKEN, {});
+        let response = await executeGet(API_ENDPOINTS.IS_AUTHENTICATED, {});
+        debugger;
 
         if (response.status == 401) {
           router.replace("/authentication");

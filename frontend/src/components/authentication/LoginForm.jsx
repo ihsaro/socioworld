@@ -18,7 +18,6 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import * as APIEndpoints from "configurations/api-endpoints";
-import * as ApplicationVariables from "configurations/application-variables";
 import { executePost } from "utils/api-communication";
 
 export const LoginForm = () => {
@@ -90,22 +89,13 @@ export const LoginForm = () => {
     if (!isLoginInputValid()) {
       setIsLoggingIn(false);
     } else {
-      let loginFormData = new FormData();
-      loginFormData.append("username", username);
-      loginFormData.append("password", password);
 
-      let response = await executePost(APIEndpoints.LOGIN, loginFormData, {
-        headers: {
-          "Content-Type": null,
-        },
-        requireAuthentication: false,
-      });
+      let response = await executePost(APIEndpoints.GET_ACCESS_TOKEN, {
+        "username": username,
+        "password": password
+      }, {});
 
       if (response.status === 200 && response.data) {
-        localStorage.setItem(
-          ApplicationVariables.JWT_TOKEN_NAME,
-          response.data["access_token"]
-        );
         setSuccessfulLogin(true);
         setLoginButtonText("Login successful, redirecting to homepage");
         router.reload(window.location.pathname);

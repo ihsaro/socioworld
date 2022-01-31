@@ -6,17 +6,9 @@ import { ApplicationBottomNavigation } from "components/home/ApplicationBottomNa
 import { LogoutDialog } from "components/home/LogoutDialog";
 import { ProtectedComponent } from "components/wrappers/ProtectedComponent";
 
-import { getScreenSize } from "utils/screen-size";
-
 function index() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(<div>Feeds</div>);
-
-  useEffect(() => {
-    window.addEventListener("resize", () => {
-      setScreenSize(getScreenSize());
-    });
-  }, []);
 
   return (
     <Stack direction="column">

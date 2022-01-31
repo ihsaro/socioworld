@@ -1,4 +1,3 @@
-import json
 from fastapi import (
     APIRouter,
     Body,
@@ -8,6 +7,7 @@ from fastapi import (
     Response,
     status
 )
+
 from fastapi.security import (
     OAuth2PasswordRequestForm
 )
@@ -82,15 +82,50 @@ async def register_admin(
         raise HTTPException(status_code=registered_user.message.status_code, detail=registered_user.message.message)
 
 
-@router.post("/login", response_model=TokenCreated)
+@router.post("/login", include_in_schema=False, response_model=TokenCreated)
 async def login(
-    # Response object
-    response: Response,
-
     # Dependencies
     credentials: OAuth2PasswordRequestForm = Depends(),
     database: Session = Depends(get_database)
 
+):
+    token_created = authentication_services.login(
+        database=database,
+        login_credentials=LoginCredentials(
+            username=credentials.username,
+            password=credentials.password
+        )
+    )
+
+    if isinstance(token_created, Error):
+        raise HTTPException(status_code=token_created.message.status_code, detail=token_created.message.message)
+    else:
+        return {
+            "access_token": token_created.access_token,
+            "token_type": token_created.token_type
+        }
+
+
+@router.post("/change-password")
+async def change_password(
+    # Dependencies
+    database: Session = Depends(get_database),
+    current_user: ApplicationUser = Depends(get_current_application_user)
+):
+    pass
+
+
+# Should change
+@router.post("/get-access-token", include_in_schema=False)
+async def get_access_token(
+    # Response object
+    response: Response,
+
+    # Dependencies
+    database: Session = Depends(get_database),
+
+    # Body parameter
+    credentials: LoginCredentials = Body(..., title="Login credentials"),
 ):
     token_created = authentication_services.login(
         database=database,
@@ -115,30 +150,18 @@ async def login(
         }
 
 
-@router.post("/change-password")
-async def change_password(
-    # Dependencies
-    database: Session = Depends(get_database),
-    current_user: ApplicationUser = Depends(get_current_application_user)
-):
-    pass
-
-
-@router.get("/get-token")
-async def get_token(
+@router.get("/is-authenticated", include_in_schema=False)
+async def is_authenticated(
     # Request object
     request: Request,
 
     # Dependencies
     current_user: ApplicationUser = Depends(get_current_application_user)
 ):
-    if request.headers.get("Authorization"):
-        return request.headers.get("Authorization")
-    elif request.cookies.get("Authorization"):
-        return request.cookies.get("Authorization")
+    return {}
 
 
-@router.post("/blacklist-token")
+@router.post("/blacklist-token", include_in_schema=False)
 async def blacklist_token(
     # Request object
     request: Request,

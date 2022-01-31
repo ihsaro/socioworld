@@ -13,7 +13,7 @@ export const GuestComponent =
 
     useEffect(() => {
       const isUserAuthenticated = async () => {
-        let response = await executeGet(API_ENDPOINTS.GET_TOKEN, {});
+        let response = await executeGet(API_ENDPOINTS.IS_AUTHENTICATED, {});
 
         if (response.status == 200) {
           router.replace("/");
